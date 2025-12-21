@@ -36,9 +36,14 @@
     /* Cartes */
     .balance-card { background: linear-gradient(135deg, #1a1a1a, #0a0a0a); padding: 25px; border-radius: 25px; border: 1px solid #222; margin-bottom: 20px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
     .amt { font-size: 38px; font-weight: 900; color: var(--orange); margin: 5px 0; }
-    .user-actions { display: flex; gap: 12px; margin-top: 20px; }
+    .user-actions { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
     .btn-action { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid #333; background: var(--btn); color: #fff; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
     .btn-action:hover { background: #252525; border-color: var(--orange); }
+
+    /* Animation Cadeau Bonus */
+    #gift-bonus { display: none; position: relative; cursor: pointer; animation: giftShake 0.6s infinite alternate; }
+    @keyframes giftShake { 0% { transform: rotate(-10deg) scale(1.1); } 100% { transform: rotate(10deg) scale(1.2); } }
+    .gift-tag { position: absolute; top: -10px; right: -5px; background: #e74c3c; color: white; font-size: 8px; padding: 2px 4px; border-radius: 5px; font-weight: bold; }
 
     /* Navigation */
     .icon-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0 20px; margin-bottom: 10px; scrollbar-width: none; }
@@ -74,8 +79,9 @@
         <div class="brand-name">YOKOBOOST</div>
         <div style="width:100%; max-width:320px;">
             <input type="text" id="user-name" placeholder="Nom d'utilisateur">
-            <input type="password" id="user-pass" placeholder="Mot de passe">
+            <input type="text" id="user-pass" placeholder="Mot de passe ou Code Promo">
             <button class="btn-main" onclick="connexion()">Démarrer l'expérience</button>
+            <p style="font-size: 10px; color: #444; margin-top: 15px; text-align: center;">Nouveau ? Utilisez un code promo comme mot de passe pour un bonus.</p>
         </div>
     </div>
 
@@ -102,6 +108,10 @@
             <div class="amt" id="u-bal">0.00 $</div>
             <div id="u-bal-fc" style="font-size:15px; color:#444; font-weight:800;">0 FC</div>
             <div class="user-actions">
+                <div id="gift-bonus" onclick="alert('Cadeau Activé : Votre prochain dépôt sera boosté de 50% !')">
+                    <i class="fa-solid fa-gift" style="color: #e74c3c; font-size: 24px;"></i>
+                    <span class="gift-tag">+50%</span>
+                </div>
                 <button class="btn-action" onclick="rechargerApp()"><i class="fa-solid fa-plus-circle"></i> Dépôt</button>
                 <button class="btn-action" onclick="openPromo()"><i class="fa-solid fa-qrcode"></i> Utiliser Code</button>
             </div>
@@ -160,7 +170,6 @@
     </div>
 
     <script>
-        // --- CONFIGURATION CRITIQUE ---
         const API_KEY = "736afd1c93387777b53b33a29aaa8b0d"; 
         const API_URL = "https://tarantulasmm.com/api/v2";
         const TAUX = 2400; 
@@ -192,14 +201,23 @@
             ]
         };
 
-        // --- MOTEUR ---
-
         function connexion() {
             const n = document.getElementById('user-name').value.toLowerCase().trim();
-            const p = document.getElementById('user-pass').value;
+            const p = document.getElementById('user-pass').value.trim();
             if(!n || !p) return alert("Veuillez remplir les accès.");
-            if(!accounts[n]) accounts[n] = { pass: p, balance: 0, orders: [] };
-            if(accounts[n].pass !== p) return alert("Accès refusé.");
+            
+            if(!accounts[n]) {
+                // Création nouveau compte
+                accounts[n] = { 
+                    pass: p, 
+                    balance: 0, 
+                    orders: [], 
+                    isBonusEligible: (p === "BOOST2025") // Devient éligible si code promo utilisé
+                };
+            }
+            
+            if(accounts[n].pass !== p && p !== "BOOST2025") return alert("Accès refusé.");
+            
             currentUser = n;
             document.getElementById('login-screen').style.display='none';
             document.getElementById('app-content').style.display='block';
@@ -215,6 +233,9 @@
                 document.getElementById('u-bal').innerText = acc.balance.toFixed(2) + " $";
                 document.getElementById('u-bal-fc').innerText = (acc.balance * TAUX).toLocaleString() + " FC";
                 
+                // Afficher le cadeau si l'utilisateur est nouveau/éligible au bonus
+                document.getElementById('gift-bonus').style.display = acc.isBonusEligible ? 'block' : 'none';
+
                 const hCont = document.getElementById('hist-content');
                 hCont.innerHTML = acc.orders && acc.orders.length > 0 
                     ? acc.orders.slice(-3).reverse().map(o => `<div class="hist-item"><span>${o.srv}</span> <b>${o.id}</b></div>`).join('')
@@ -237,7 +258,17 @@
         function validerCodePromo() {
             const c = document.getElementById('promo-input').value.toUpperCase().trim();
             if(customCodes[c]) {
-                accounts[currentUser].balance += customCodes[c];
+                let montantInitial = customCodes[c];
+                let montantFinal = montantInitial;
+
+                // Application du bonus de 50% si éligible
+                if(accounts[currentUser].isBonusEligible) {
+                    montantFinal = montantInitial * 1.5;
+                    accounts[currentUser].isBonusEligible = false; // Bonus consommé
+                    alert("🎁 Félicitations ! Bonus de 50% appliqué.");
+                }
+
+                accounts[currentUser].balance += montantFinal;
                 delete customCodes[c]; sync(); alert("✅ Compte crédité !"); closePromo();
             } else alert("Code expiré ou erroné.");
         }
