@@ -1,0 +1,21 @@
+{
+  "name": "Yokoboost",
+  "short_name": "Yokoboost",
+  "description": "SMM Panel International",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#ff9800",
+  "icons": [
+    {
+      "src": "yoko-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "yoko-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
