@@ -113,21 +113,13 @@
     <script>
         const API_KEY = "D4a32d304b6b28344f731359c3a7d75b";  
         const API_URL = "https://tarantulasmm.com/api/v2";
-        const TAUX = 2400; // Taux mis à jour à 2400 FC
+        const TAUX = 2400; 
         const WHATSAPP_NUMBER = "243897238396";
 
-                let codesValides = JSON.parse(localStorage.getItem('yoko_codes')) || {
-            "YK5-78A2-X9": 5,
-            "YK5-11P0-M4": 5,
-            "YK5-66Q7-L1": 5,
-            "YK5-90B3-K8": 5,
-            "YK5-22Z1-V5": 5,
-            "YK10-55G9-R2": 10,
-            "YK10-33T4-J6": 10,
-            "YK10-88N1-S3": 10,
-            "YK10-44W8-P9": 10,
-            "YK10-00D2-F7": 10
-        }; // <--- IL MANQUAIT CETTE FERMETURE ICI
+        let codesValides = JSON.parse(localStorage.getItem('yoko_codes')) || {
+            "YK5-78A2-X9": 5, "YK5-11P0-M4": 5, "YK5-66Q7-L1": 5, "YK5-90B3-K8": 5, "YK5-22Z1-V5": 5,
+            "YK10-55G9-R2": 10, "YK10-33T4-J6": 10, "YK10-88N1-S3": 10, "YK10-44W8-P9": 10, "YK10-00D2-F7": 10
+        };
         
         let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
         let currentUser = null;
@@ -212,8 +204,7 @@
             save();
             document.getElementById('login-screen').style.display='none';
             document.getElementById('app-content').style.display='block';
-            sync(); 
-            renderHistory();
+            sync(); renderHistory();
             selPlat('TikTok', document.querySelector('.icon-item'));
         }
 
@@ -254,8 +245,7 @@
             if (codesValides[c]) {
                 accounts[currentUser].balance += codesValides[c];
                 delete codesValides[c];
-                sync();
-                alert("Compte crédité !");
+                sync(); alert("Compte crédité !");
             } else alert("Code invalide");
         }
 
@@ -268,17 +258,25 @@
             const l = document.getElementById('link').value;
             const q = document.getElementById('qty').value;
             const opt = document.getElementById('srv-list').selectedOptions[0];
+            
             if(!l) return alert("Lien manquant");
             if(accounts[currentUser].balance < t) return alert("Solde insuffisant");
+            
             if(confirm("Confirmer pour " + (t * TAUX).toLocaleString() + " FC ?")) {
                 accounts[currentUser].balance -= t;
                 sync();
-                const fd = new FormData();
-                fd.append('key', API_KEY); fd.append('action', 'add');
-                fd.append('service', opt.dataset.id); fd.append('link', l); fd.append('quantity', q);
+
                 try {
-                    const r = await fetch(API_URL, {method:'POST', body:fd});
-                    const res = await r.json();
+                    // Construction de l'URL avec les paramètres pour le proxy
+                    const targetUrl = API_URL + "?key=" + API_KEY + "&action=add&service=" + opt.dataset.id + "&link=" + encodeURIComponent(l) + "&quantity=" + q;
+                    const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(targetUrl);
+
+                    const r = await fetch(proxyUrl);
+                    const data = await r.json();
+                    
+                    // On déballe le contenu renvoyé par le proxy
+                    const res = JSON.parse(data.contents); 
+
                     if(res.order) {
                         if (!accounts[currentUser].history) accounts[currentUser].history = [];
                         accounts[currentUser].history.push({
@@ -288,12 +286,16 @@
                             qty: q,
                             date: new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})
                         });
-                        save();
-                        renderHistory();
+                        save(); renderHistory();
                         alert("BOOST LANCÉ ! ID: " + res.order);
+                    } else { 
+                        alert("Erreur SMM: " + (res.error || "Problème API")); 
+                        accounts[currentUser].balance += t; sync(); 
                     }
-                    else { alert("Erreur: " + res.error); accounts[currentUser].balance += t; sync(); }
-                } catch(e) { alert("Erreur réseau"); accounts[currentUser].balance += t; sync(); }
+                } catch(e) { 
+                    alert("Erreur réseau ou Proxy"); 
+                    accounts[currentUser].balance += t; sync(); 
+                }
             }
         }
 
