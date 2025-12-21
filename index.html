@@ -146,6 +146,12 @@
             </div>
         </div>
 
+        <div style="padding: 0 10px; margin-bottom: 20px;">
+            <button class="btn-action" onclick="deconnexion()" style="width: 100%; border-color: #222; color: #555; background: transparent;">
+                <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+            </button>
+        </div>
+
         <div id="admin-panel">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; background:#1a1a1a; padding:15px; border-radius:15px;">
                 <h2 style="color:var(--orange); font-size:16px; margin:0;">ÉTAT TARANTULASMM</h2>
@@ -223,6 +229,17 @@
             document.getElementById('app-content').style.display='block';
             sync();
             selPlat('TikTok', document.querySelector('.icon-item'));
+        }
+
+        function deconnexion() {
+            if(confirm("Voulez-vous vous déconnecter ?")) {
+                currentUser = null;
+                document.getElementById('app-content').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('user-name').value = "";
+                document.getElementById('user-pass').value = "";
+                window.scrollTo(0, 0);
+            }
         }
 
         function sync() {
