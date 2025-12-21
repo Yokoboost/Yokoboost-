@@ -7,10 +7,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { --orange: #ff9800; --bg: #000; --card: #121212; --btn: #1e1e1e; }
-    body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; user-select: none; -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; user-select: none; }
     #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-sizing: border-box; }
-    .logo-big { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--orange); background: url('yoko-logo.png') center/cover; margin-bottom: 20px; background-color: #111; }
-    .brand-name { color: var(--orange); font-size: 26px; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; }
+    .logo-big { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--orange); background: url('yoko-logo.png') center/cover; margin-bottom: 20px; background-color: #111; }
+    .brand-name { color: var(--orange); font-size: 24px; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; }
     input, select { width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 12px; border: 1px solid #333; background: #0a0a0a; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; }
     .btn-main { width: 100%; padding: 18px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--orange), #f39c12); color: #000; font-weight: bold; text-transform: uppercase; cursor: pointer; }
     #app-content { display: none; }
@@ -23,9 +23,8 @@
     .icon-item.active .icon-box { border-color: var(--orange); }
     .order-box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid #222; }
     .price-display { text-align: center; padding: 15px; border: 1px dashed #444; border-radius: 15px; margin: 15px 0; background: #080808; }
-    .total-usd { font-size: 28px; font-weight: 900; color: var(--orange); }
-    #admin-panel { display:none; margin-top:20px; background:#121212; padding:15px; border-radius:20px; border: 1px dashed var(--orange); }
-    .smm-link { color: #25D366; font-weight: bold; text-decoration: underline; font-size: 14px; display: block; margin-bottom: 10px; }
+    #admin-panel { display:none; margin-top:20px; background:#121212; padding:15px; border-radius:20px; border: 1px solid var(--orange); }
+    .smm-val { color: #25D366; font-weight: bold; font-size: 16px; }
   </style>
 </head>
 <body>
@@ -57,24 +56,25 @@
             <input type="number" id="qty" value="1000" oninput="calc()">
             <input type="url" id="link" placeholder="Lien (URL)">
             <div class="price-display">
-                <div class="total-usd" id="total-val">0.00 $</div>
+                <div style="font-size:28px; font-weight:900; color:var(--orange);" id="total-val">0.00 $</div>
                 <div id="total-fc" style="font-size:12px; color:#777;">0 FC</div>
             </div>
-            <button class="btn-main" onclick="processOrder()">🚀 LANCER LE BOOST</button>
+            <button class="btn-main" onclick="processOrder()">🚀 LANCER LE BOOST (5$ / 5€)</button>
         </div>
 
         <div id="admin-panel">
-            <h3 style="color:var(--orange); margin:0 0 10px 0; font-size:14px;">ADMINISTRATION</h3>
-            <div id="smm-balance-area"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="color:var(--orange); margin:0; font-size:14px;">ADMINISTRATION</h3>
+                <span id="smm-balance" class="smm-val">Chargement...</span>
+            </div>
             <div id="admin-user-list"></div>
-            <button onclick="ajouterArgent()" style="width:100%; margin-top:15px; padding:12px; background:#222; border:1px solid #444; color:#fff; border-radius:10px; font-weight:bold;">+ RECHARGER UN CLIENT</button>
+            <button onclick="ajouterArgent()" style="width:100%; margin-top:15px; padding:12px; background:#222; border:1px solid #444; color:#fff; border-radius:10px;">+ RECHARGER UN CLIENT</button>
         </div>
 
-        <div style="text-align:center; padding:50px; font-size:11px; color:#333; text-decoration:underline;" onclick="openAdmin()">ACCÈS GÉRANT</div>
+        <div style="text-align:center; padding:40px; font-size:10px; color:#333;" onclick="openAdmin()">ESPACE GÉRANT</div>
     </div>
 
     <script>
-        // NOUVELLE CLÉ CONFIGURÉE ICI
         const API_KEY = "9e81e5d2aa7c0d63999cbbbc49f82845"; 
         const API_URL = "https://smmpanelone.com/api/v2";
         const TAUX = 2400; 
@@ -83,18 +83,18 @@
         let currentUser = null;
 
         const catalog = {
-            "TikTok": [{id:"3137", n:"Abonnés (5$)", p:0.005}, {id:"3117", n:"Likes (3$)", p:0.003}],
-            "Instagram": [{id:"2894", n:"Abonnés (6$)", p:0.006}],
-            "Facebook": [{id:"3110", n:"Abonnés (8$)", p:0.008}],
-            "YouTube": [{id:"2984", n:"Vues (12$)", p:0.012}]
+            "TikTok": [{id:"3137", n:"Abonnés", p:0.005}, {id:"3117", n:"Likes", p:0.003}],
+            "Instagram": [{id:"2894", n:"Abonnés", p:0.006}],
+            "Facebook": [{id:"3110", n:"Abonnés", p:0.008}],
+            "YouTube": [{id:"2984", n:"Vues", p:0.012}]
         };
 
         function connexion() {
             const n = document.getElementById('user-name').value.toLowerCase().trim();
             const p = document.getElementById('user-pass').value;
             if(!n || !p) return;
-            if(!accounts[n]) accounts[n] = { pass: p, balance: 0, history: [] };
-            if(accounts[n].pass !== p) return alert("Erreur mot de passe");
+            if(!accounts[n]) accounts[n] = { pass: p, balance: 5, history: [] };
+            if(accounts[n].pass !== p) return alert("Erreur pass");
             currentUser = n;
             document.getElementById('login-screen').style.display='none';
             document.getElementById('app-content').style.display='block';
@@ -127,24 +127,41 @@
             document.getElementById('total-fc').innerText = (q * p * TAUX).toLocaleString() + " FC";
         }
 
-        function processOrder() {
+        async function processOrder() {
             const total = parseFloat(document.getElementById('total-val').innerText);
             const link = document.getElementById('link').value.trim();
             const qty = document.getElementById('qty').value;
             const sId = document.getElementById('srv-list').selectedOptions[0].dataset.id;
             if(!link || accounts[currentUser].balance < total) return alert("Lien vide ou solde insuffisant");
-            if(confirm("Lancer ce boost ?")) {
-                const url = `${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}`;
-                window.location.href = url;
+            
+            if(confirm("Confirmer le boost ?")) {
+                const proxy = "https://api.allorigins.win/get?url=" + encodeURIComponent(`${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${link}&quantity=${qty}`);
+                try {
+                    const r = await fetch(proxy);
+                    const d = await r.json();
+                    const res = JSON.parse(d.contents);
+                    if(res.order) {
+                        accounts[currentUser].balance -= total;
+                        sync();
+                        alert("✅ BOOST LANCÉ ! ID: " + res.order);
+                    } else { alert("Erreur SMM: " + (res.error || "Fonds insuffisants")); }
+                } catch(e) { alert("Erreur réseau"); }
             }
         }
 
-        function openAdmin() {
-            if(prompt("MOT DE PASSE GÉRANT :") === "YOKO2025") {
+        async function openAdmin() {
+            if(prompt("PASS GÉRANT :") === "YOKO2025") {
                 document.getElementById('admin-panel').style.display='block';
-                const balLink = `${API_URL}?key=${API_KEY}&action=balance`;
-                document.getElementById('smm-balance-area').innerHTML = `<a href="${balLink}" class="smm-link" target="_blank">CLIQUEZ ICI POUR VOIR LE SOLDE RÉEL</a>`;
                 refreshAdmin();
+                
+                // Récupération automatique du solde
+                const proxy = "https://api.allorigins.win/get?url=" + encodeURIComponent(`${API_URL}?key=${API_KEY}&action=balance`);
+                try {
+                    const r = await fetch(proxy);
+                    const d = await r.json();
+                    const res = JSON.parse(d.contents);
+                    document.getElementById('smm-balance').innerText = (res.balance || "0.00") + " $";
+                } catch(e) { document.getElementById('smm-balance').innerText = "Erreur"; }
             }
         }
 
@@ -152,15 +169,15 @@
             const list = document.getElementById('admin-user-list'); list.innerHTML = "";
             Object.keys(accounts).forEach(u => {
                 const d = document.createElement('div');
-                d.style = "padding:10px; border-bottom:1px solid #222; display:flex; justify-content:space-between; font-size:12px;";
+                d.style = "padding:8px; border-bottom:1px solid #222; display:flex; justify-content:space-between; font-size:12px;";
                 d.innerHTML = `<span>${u}</span><span style="color:var(--orange)">${accounts[u].balance.toFixed(2)}$</span>`;
                 list.appendChild(d);
             });
         }
 
         function ajouterArgent() {
-            const u = prompt("Nom du client :").toLowerCase();
-            const m = parseFloat(prompt("Argent à ajouter ($) :"));
+            const u = prompt("Nom client :").toLowerCase();
+            const m = parseFloat(prompt("Montant ($) :"));
             if(accounts[u] && m) { accounts[u].balance += m; sync(); refreshAdmin(); alert("Ok !"); }
         }
     </script>
