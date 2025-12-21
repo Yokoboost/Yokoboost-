@@ -20,11 +20,14 @@
     .balance-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 15px; }
     .amt { font-size: 32px; font-weight: 800; color: var(--orange); }
     
-    .icon-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; }
-    .icon-item { text-align: center; opacity: 0.4; min-width: 75px; }
+    .user-actions { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-action { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+    .icon-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; scrollbar-width: none; }
+    .icon-item { text-align: center; opacity: 0.4; min-width: 75px; cursor: pointer; }
     .icon-item.active { opacity: 1; }
     .icon-box { background: var(--btn); width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 5px; border: 2px solid transparent; }
-    .icon-item.active .icon-box { border-color: var(--orange); }
+    .icon-item.active .icon-box { border-color: var(--orange); background: rgba(255,152,0,0.1); }
 
     .order-box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid #222; }
     .price-display { text-align: center; padding: 15px; border: 1px dashed #444; border-radius: 15px; margin: 15px 0; background: #080808; }
@@ -45,9 +48,14 @@
 
     <div id="app-content">
         <div class="balance-card">
-            <span style="font-size:10px; color:#777;">SOLDE CLIENT</span>
+            <span style="font-size:10px; color:#777;">MON SOLDE</span>
             <div class="amt" id="u-bal">0.00 $</div>
             <div id="u-bal-fc" style="font-size:14px; color:#555; font-weight:bold;">0 FC</div>
+            
+            <div class="user-actions">
+                <button class="btn-action" onclick="rechargerApp()"><i class="fa-solid fa-wallet"></i> RECHARGER</button>
+                <button class="btn-action" onclick="utiliserCode()"><i class="fa-solid fa-tag"></i> CODE PROMO</button>
+            </div>
         </div>
         
         <div class="icon-scroll">
@@ -60,14 +68,14 @@
         <div class="order-box">
             <select id="srv-list" onchange="calc()"></select>
             <input type="number" id="qty" value="1000" oninput="calc()">
-            <input type="url" id="link" placeholder="Lien (URL)">
+            <input type="url" id="link" placeholder="Lien (URL) de destination">
             
             <div class="price-display">
                 <div style="font-size:28px; font-weight:900; color:var(--orange);" id="total-val">0.00 $</div>
                 <div id="total-fc" style="font-size:12px; color:#777;">0 FC</div>
             </div>
             
-            <button class="btn-main" onclick="processOrder()">🚀 LANCER LE BOOST (5$ / 5€)</button>
+            <button class="btn-main" onclick="processOrder()">🚀 LANCER LE BOOST</button>
         </div>
 
         <div id="admin-panel">
@@ -83,26 +91,71 @@
     </div>
 
     <script>
-        // CONFIGURATION TARANTULA SMM AVEC TA NOUVELLE CLÉ
         const API_KEY = "736afd1c93387777b53b33a29aaa8b0d"; 
-        const API_URL = "https://tarantulasmm.com/api/v2"; // URL mise à jour
+        const API_URL = "https://tarantulasmm.com/api/v2";
         const TAUX = 2400; 
+        const WHATSAPP = "243XXXXXXXXX";
 
         let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
         let currentUser = null;
 
+        // Dictionnaire des codes secrets
+        const codesValides = {
+            "YK5-78A2-X9": 5, "YK5-11P0-M4": 5, "YK5-66Q7-L1": 5, "YK5-90B3-K8": 5, "YK5-22Z1-V5": 5,
+            "YK10-55G9-R2": 10, "YK10-33T4-J6": 10, "YK10-88N1-S3": 10, "YK10-44W8-P9": 10, "YK10-00D2-F7": 10,
+            "YOKO-BOSS-50": 50
+        };
+
         const catalog = {
-            "TikTok": [{id:"100", n:"Abonnés", p:0.005}],
-            "Instagram": [{id:"200", n:"Abonnés", p:0.006}],
-            "Facebook": [{id:"300", n:"Abonnés", p:0.008}],
-            "YouTube": [{id:"400", n:"Vues", p:0.012}]
+            "TikTok": [
+                {id:"1264", n:"Abonnés (No Refill) (5$)", p:0.005}, 
+                {id:"15",   n:"Likes (3$)", p:0.003}, 
+                {id:"1735", n:"Vues (1.5$)", p:0.0015}, 
+                {id:"2044", n:"Sauvegardes (2$)", p:0.002},
+                {id:"1754", n:"Partages (2.5$)", p:0.0025},
+                {id:"2073", n:"Commentaires (8$)", p:0.008},
+                {id:"1282", n:"Live Likes (4$)", p:0.004},
+                {id:"888",  n:"Live Vues 15min (6$)", p:0.006},
+                {id:"2489", n:"Downloads (Refill) (5$)", p:0.005}
+            ],
+            "Instagram": [
+                {id:"1177", n:"Abonnés (Stable) (6$)", p:0.006}, 
+                {id:"1879", n:"Likes (Rapide) (3$)", p:0.003}, 
+                {id:"1674", n:"Vues Reels (2$)", p:0.002}, 
+                {id:"1682", n:"Commentaires (10$)", p:0.010},
+                {id:"1314", n:"Partages (4$)", p:0.004},
+                {id:"2301", n:"Sauvegardes (3$)", p:0.003},
+                {id:"1354", n:"Reposts (5$)", p:0.005},
+                {id:"4026", n:"Pack Vues + Likes (8$)", p:0.008},
+                {id:"3759", n:"Membres de Canal (12$)", p:0.012}
+            ],
+            "Facebook": [
+                {id:"4001", n:"Abonnés Profil (8$)", p:0.008},
+                {id:"52",   n:"Likes de Page (7$)", p:0.007},
+                {id:"3935", n:"Page Likes + Followers (12$)", p:0.012},
+                {id:"3860", n:"Membres de Groupe (10$)", p:0.010},
+                {id:"3867", n:"Vues Vidéos (3$)", p:0.003},
+                {id:"3843", n:"Réaction: Like (4$)", p:0.004},
+                {id:"3844", n:"Réaction: J'adore (4.5$)", p:0.0045},
+                {id:"3845", n:"Réaction: Étonnée (4.5$)", p:0.0045},
+                {id:"3846", n:"Réaction: Rire (4.5$)", p:0.0045}
+            ],
+            "YouTube": [
+                {id:"714",  n:"Abonnés (35$)", p:0.035},
+                {id:"111",  n:"Vues (Refill 30j) (12$)", p:0.012}, 
+                {id:"1786", n:"Likes (Refill 30j) (10$)", p:0.010}, 
+                {id:"206",  n:"Commentaires (15$)", p:0.015}, 
+                {id:"167",  n:"Shorts Likes (8$)", p:0.008},
+                {id:"1808", n:"Partages (7$)", p:0.007},
+                {id:"2394", n:"Live Streaming 15min (12$)", p:0.012}
+            ]
         };
 
         function connexion() {
             const n = document.getElementById('user-name').value.toLowerCase().trim();
             const p = document.getElementById('user-pass').value;
             if(!n || !p) return;
-            if(!accounts[n]) accounts[n] = { pass: p, balance: 5, history: [] };
+            if(!accounts[n]) accounts[n] = { pass: p, balance: 0, codesUsed: [] };
             if(accounts[n].pass !== p) return alert("Erreur pass");
             currentUser = n;
             document.getElementById('login-screen').style.display='none';
@@ -116,6 +169,31 @@
             document.getElementById('u-bal').innerText = bal.toFixed(2) + " $";
             document.getElementById('u-bal-fc').innerText = (bal * TAUX).toLocaleString() + " FC";
             localStorage.setItem('yoko_accounts', JSON.stringify(accounts));
+        }
+
+        function rechargerApp() {
+            const msg = encodeURIComponent(`Bonjour Yokoboost, je souhaite recharger mon compte utilisateur : ${currentUser}`);
+            window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank');
+        }
+
+        function utiliserCode() {
+            const code = prompt("ENTREZ VOTRE CODE DE RECHARGE :");
+            if(!code) return;
+            
+            if(accounts[currentUser].codesUsed && accounts[currentUser].codesUsed.includes(code)) {
+                return alert("❌ Ce code a déjà été utilisé sur votre compte.");
+            }
+
+            if(codesValides[code]) {
+                const montant = codesValides[code];
+                accounts[currentUser].balance += montant;
+                if(!accounts[currentUser].codesUsed) accounts[currentUser].codesUsed = [];
+                accounts[currentUser].codesUsed.push(code);
+                sync();
+                alert(`✅ Succès ! +${montant}$ ajoutés à votre solde.`);
+            } else {
+                alert("❌ Code invalide ou expiré.");
+            }
         }
 
         function selPlat(p, el) {
@@ -141,13 +219,11 @@
             const link = document.getElementById('link').value.trim();
             const qty = document.getElementById('qty').value;
             const sId = document.getElementById('srv-list').selectedOptions[0].dataset.id;
-            if(!link || accounts[currentUser].balance < total) return alert("Vérifiez le lien ou le solde");
+            if(!link || accounts[currentUser].balance < total) return alert("Solde insuffisant ou lien manquant");
             
-            if(confirm("Confirmer le boost ?")) {
-                // Utilisation du proxy pour éviter les erreurs CORS sur mobile
+            if(confirm(`Dépenser ${total}$ pour ce boost ?`)) {
                 const url = `${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${link}&quantity=${qty}`;
                 const proxy = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
-                
                 try {
                     const r = await fetch(proxy);
                     const d = await r.json();
@@ -155,9 +231,9 @@
                     if(res.order) {
                         accounts[currentUser].balance -= total;
                         sync();
-                        alert("✅ BOOST LANCÉ ! Commande N°" + res.order);
-                    } else { alert("Fournisseur: " + (res.error || "Fonds insuffisants")); }
-                } catch(e) { alert("Erreur de connexion au serveur"); }
+                        alert("✅ BOOST LANCÉ AVEC SUCCÈS !");
+                    } else { alert("Erreur fournisseur: " + (res.error || "Fonds insuffisants")); }
+                } catch(e) { alert("Erreur réseau"); }
             }
         }
 
@@ -165,8 +241,6 @@
             if(prompt("PASS ADMIN :") === "YOKO2025") {
                 document.getElementById('admin-panel').style.display='block';
                 refreshAdmin();
-                
-                // Récupération automatique et directe du solde SMM
                 const url = `${API_URL}?key=${API_KEY}&action=balance`;
                 const proxy = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
                 try {
@@ -190,8 +264,8 @@
 
         function ajouterArgent() {
             const u = prompt("Nom client :").toLowerCase();
-            const m = parseFloat(prompt("Argent à ajouter ($) :"));
-            if(accounts[u] && m) { accounts[u].balance += m; sync(); refreshAdmin(); alert("Compte rechargé !"); }
+            const m = parseFloat(prompt("Montant ($) :"));
+            if(accounts[u] && m) { accounts[u].balance += m; sync(); refreshAdmin(); alert("Ok !"); }
         }
     </script>
 </body>
