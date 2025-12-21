@@ -4,25 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Yokoboost | SMM Panel</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="yoko-logo.png">
+  <link rel="icon" type="image/png" href="yoko-logo.png">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { --orange: #ff9800; --bg: #000; --card: #121212; --btn: #1e1e1e; }
     body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; user-select: none; }
-    #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-sizing: border-box; }
+    
+    #login-screen { 
+        position: fixed; top:0; left:0; width:100%; height:100%; 
+        background:var(--bg); z-index:1000; display: flex; 
+        flex-direction: column; align-items: center; justify-content: center; 
+        padding: 25px; box-sizing: border-box; 
+    }
+
+    /* LOGO DE CONNEXION CORRIGÉ (Ligne 24-34) */
     .logo-big { 
-    width: 100px; 
-    height: 100px; 
-    border-radius: 50%; 
-    border: 2px solid var(--orange); 
-    /* Cette ligne est indispensable pour charger votre fichier yoko-logo.png */
-    background: url('yoko-logo.png') center no-repeat; 
-    background-size: cover; 
-    margin-bottom: 20px;
-    background-color: #111; /* Fond de secours */
-}
+        width: 120px; 
+        height: 120px; 
+        border-radius: 50%; 
+        border: 2px solid var(--orange); 
+        background: url('yoko-logo.png') center no-repeat; 
+        background-size: cover; 
+        margin-bottom: 20px;
+        background-color: #111;
+    }
+
     .brand-name { color: var(--orange); font-size: 28px; font-weight: 900; margin-bottom: 30px; }
     input, select { width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 12px; border: 1px solid #333; background: #0a0a0a; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; }
     .btn-main { width: 100%; padding: 18px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--orange), #f39c12); color: #000; font-weight: bold; text-transform: uppercase; cursor: pointer; }
+    
     #app-content { display: none; }
     .balance-card { background: var(--card); padding: 15px; border-radius: 20px; border: 1px solid #222; margin-bottom: 15px; }
     .amt { font-size: 28px; font-weight: 800; color: var(--orange); }
