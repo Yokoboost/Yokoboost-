@@ -4,33 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Yokoboost | SMM Panel</title>
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { --orange: #ff9800; --bg: #000; --card: #121212; --btn: #1e1e1e; }
     body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; user-select: none; -webkit-tap-highlight-color: transparent; }
-    
     #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-sizing: border-box; }
     .logo-big { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--orange); background: url('yoko-logo.png') center/cover; margin-bottom: 20px; background-color: #111; }
     .brand-name { color: var(--orange); font-size: 26px; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; }
-
     input, select { width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 12px; border: 1px solid #333; background: #0a0a0a; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; }
-    .btn-main { width: 100%; padding: 18px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--orange), #f39c12); color: #000; font-weight: bold; text-transform: uppercase; cursor: pointer; display: block; }
-    
+    .btn-main { width: 100%; padding: 18px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--orange), #f39c12); color: #000; font-weight: bold; text-transform: uppercase; cursor: pointer; }
     #app-content { display: none; }
     .balance-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 15px; }
     .amt { font-size: 32px; font-weight: 800; color: var(--orange); }
-    
     .icon-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; }
     .icon-item { text-align: center; opacity: 0.4; min-width: 75px; }
     .icon-item.active { opacity: 1; }
     .icon-box { background: var(--btn); width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 5px; border: 2px solid transparent; }
     .icon-item.active .icon-box { border-color: var(--orange); }
-
     .order-box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid #222; }
     .price-display { text-align: center; padding: 15px; border: 1px dashed #444; border-radius: 15px; margin: 15px 0; background: #080808; }
     .total-usd { font-size: 28px; font-weight: 900; color: var(--orange); }
-
     #admin-panel { display:none; margin-top:20px; background:#121212; padding:15px; border-radius:20px; border: 1px dashed var(--orange); }
     .smm-link { color: #25D366; font-weight: bold; text-decoration: underline; font-size: 14px; display: block; margin-bottom: 10px; }
   </style>
@@ -63,12 +56,10 @@
             <select id="srv-list" onchange="calc()"></select>
             <input type="number" id="qty" value="1000" oninput="calc()">
             <input type="url" id="link" placeholder="Lien (URL)">
-            
             <div class="price-display">
                 <div class="total-usd" id="total-val">0.00 $</div>
                 <div id="total-fc" style="font-size:12px; color:#777;">0 FC</div>
             </div>
-            
             <button class="btn-main" onclick="processOrder()">🚀 LANCER LE BOOST</button>
         </div>
 
@@ -76,14 +67,15 @@
             <h3 style="color:var(--orange); margin:0 0 10px 0; font-size:14px;">ADMINISTRATION</h3>
             <div id="smm-balance-area"></div>
             <div id="admin-user-list"></div>
-            <button onclick="ajouterArgent()" style="width:100%; margin-top:15px; padding:12px; background:#222; border:1px solid #444; color:#fff; border-radius:10px;">+ RECHARGER UN CLIENT</button>
+            <button onclick="ajouterArgent()" style="width:100%; margin-top:15px; padding:12px; background:#222; border:1px solid #444; color:#fff; border-radius:10px; font-weight:bold;">+ RECHARGER UN CLIENT</button>
         </div>
 
         <div style="text-align:center; padding:50px; font-size:11px; color:#333; text-decoration:underline;" onclick="openAdmin()">ACCÈS GÉRANT</div>
     </div>
 
     <script>
-        const API_KEY = "B6dfad3a66e8b53ec961d3c819ee8950"; 
+        // NOUVELLE CLÉ CONFIGURÉE ICI
+        const API_KEY = "9e81e5d2aa7c0d63999cbbbc49f82845"; 
         const API_URL = "https://smmpanelone.com/api/v2";
         const TAUX = 2400; 
 
@@ -100,8 +92,8 @@
         function connexion() {
             const n = document.getElementById('user-name').value.toLowerCase().trim();
             const p = document.getElementById('user-pass').value;
-            if(!n || !p) return alert("Remplir les champs");
-            if(!accounts[n]) accounts[n] = { pass: p, balance: 5, history: [] };
+            if(!n || !p) return;
+            if(!accounts[n]) accounts[n] = { pass: p, balance: 0, history: [] };
             if(accounts[n].pass !== p) return alert("Erreur mot de passe");
             currentUser = n;
             document.getElementById('login-screen').style.display='none';
@@ -140,12 +132,10 @@
             const link = document.getElementById('link').value.trim();
             const qty = document.getElementById('qty').value;
             const sId = document.getElementById('srv-list').selectedOptions[0].dataset.id;
-
             if(!link || accounts[currentUser].balance < total) return alert("Lien vide ou solde insuffisant");
-
             if(confirm("Lancer ce boost ?")) {
                 const url = `${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}`;
-                window.location.href = url; // Utilisation de redirection directe (plus sûr sur mobile)
+                window.location.href = url;
             }
         }
 
@@ -153,7 +143,7 @@
             if(prompt("MOT DE PASSE GÉRANT :") === "YOKO2025") {
                 document.getElementById('admin-panel').style.display='block';
                 const balLink = `${API_URL}?key=${API_KEY}&action=balance`;
-                document.getElementById('smm-balance-area').innerHTML = `<a href="${balLink}" class="smm-link" target="_blank">Cliquez ici pour voir votre solde SMM</a>`;
+                document.getElementById('smm-balance-area').innerHTML = `<a href="${balLink}" class="smm-link" target="_blank">CLIQUEZ ICI POUR VOIR LE SOLDE RÉEL</a>`;
                 refreshAdmin();
             }
         }
