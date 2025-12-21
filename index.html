@@ -23,7 +23,6 @@
         padding: 25px; box-sizing: border-box; 
     }
 
-    /* LOGO DE CONNEXION CORRIGÉ (Ligne 24-34) */
     .logo-big { 
         width: 120px; 
         height: 120px; 
@@ -98,6 +97,13 @@
             <button class="btn-main" onclick="processOrder()">Lancer le Boost</button>
         </div>
 
+        <div class="order-box" style="margin-top:20px; background:#0a0a0a; border-color:#1a1a1a;">
+            <span style="font-size:11px; color:var(--orange); font-weight:bold; display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <i class="fa-solid fa-clock-rotate-left"></i> RÉCENTES COMMANDES
+            </span>
+            <div id="history-list" style="max-height:250px; overflow-y:auto;"></div>
+        </div>
+
         <div id="admin-panel">
             <button onclick="ajouterCode()" class="btn-action" style="width:100%">+ CRÉER CODE</button>
         </div>
@@ -107,12 +113,49 @@
     <script>
         const API_KEY = "D4a32d304b6b28344f731359c3a7d75b";  
         const API_URL = "https://tarantulasmm.com/api/v2";
-        const TAUX = 2850; 
+        const TAUX = 2400; // Taux mis à jour à 2400 FC
         const WHATSAPP_NUMBER = "243897238396";
 
-        let codesValides = JSON.parse(localStorage.getItem('yoko_codes')) || {"YK5-NEW": 5};
+                let codesValides = JSON.parse(localStorage.getItem('yoko_codes')) || {
+            "YK5-78A2-X9": 5,
+            "YK5-11P0-M4": 5,
+            "YK5-66Q7-L1": 5,
+            "YK5-90B3-K8": 5,
+            "YK5-22Z1-V5": 5,
+            "YK10-55G9-R2": 10,
+            "YK10-33T4-J6": 10,
+            "YK10-88N1-S3": 10,
+            "YK10-44W8-P9": 10,
+            "YK10-00D2-F7": 10
+        }; // <--- IL MANQUAIT CETTE FERMETURE ICI
+        
         let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
         let currentUser = null;
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            if (!list || !currentUser) return;
+            list.innerHTML = "";
+            const history = accounts[currentUser].history || [];
+            if (history.length === 0) {
+                list.innerHTML = "<div style='font-size:11px; color:#444; text-align:center; padding:10px;'>Aucun boost pour le moment.</div>";
+                return;
+            }
+            [...history].reverse().forEach(order => {
+                const div = document.createElement('div');
+                div.style = "padding:10px 0; border-bottom:1px solid #1a1a1a; font-size:11px;";
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                        <span style="color:#eee; font-weight:bold;">${order.serviceName}</span>
+                        <span style="color:var(--orange); font-weight:bold;">${order.price} $</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color:#555; font-size:10px;">
+                        <span>ID: ${order.id} | Qté: ${order.qty}</span>
+                        <span>${order.date}</span>
+                    </div>`;
+                list.appendChild(div);
+            });
+        }
 
         const catalog = {
             "TikTok": [
@@ -163,13 +206,14 @@
             const n = document.getElementById('user-name').value.toLowerCase().trim();
             const p = document.getElementById('user-pass').value;
             if (!n || !p) return alert("Champs obligatoires");
-            if (!accounts[n]) accounts[n] = { pass: p, balance: 0 };
+            if (!accounts[n]) accounts[n] = { pass: p, balance: 0, history: [] };
             if (accounts[n].pass !== p) return alert("Mot de passe incorrect");
             currentUser = n;
             save();
             document.getElementById('login-screen').style.display='none';
             document.getElementById('app-content').style.display='block';
-            sync();
+            sync(); 
+            renderHistory();
             selPlat('TikTok', document.querySelector('.icon-item'));
         }
 
@@ -235,7 +279,19 @@
                 try {
                     const r = await fetch(API_URL, {method:'POST', body:fd});
                     const res = await r.json();
-                    if(res.order) alert("BOOST LANCÉ ! ID: " + res.order);
+                    if(res.order) {
+                        if (!accounts[currentUser].history) accounts[currentUser].history = [];
+                        accounts[currentUser].history.push({
+                            id: res.order,
+                            serviceName: opt.text,
+                            price: t.toFixed(2),
+                            qty: q,
+                            date: new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})
+                        });
+                        save();
+                        renderHistory();
+                        alert("BOOST LANCÉ ! ID: " + res.order);
+                    }
                     else { alert("Erreur: " + res.error); accounts[currentUser].balance += t; sync(); }
                 } catch(e) { alert("Erreur réseau"); accounts[currentUser].balance += t; sync(); }
             }
