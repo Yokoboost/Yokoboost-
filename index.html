@@ -254,50 +254,55 @@
         }
 
         async function processOrder() {
-            const t = parseFloat(document.getElementById('total-val').innerText);
-            const l = document.getElementById('link').value;
-            const q = document.getElementById('qty').value;
-            const opt = document.getElementById('srv-list').selectedOptions[0];
-            
-            if(!l) return alert("Lien manquant");
-            if(accounts[currentUser].balance < t) return alert("Solde insuffisant");
-            
-            if(confirm("Confirmer pour " + (t * TAUX).toLocaleString() + " FC ?")) {
-                accounts[currentUser].balance -= t;
-                sync();
+    // Récupération des données corrigées
+    const totalPrix = parseFloat(document.getElementById('total-val').innerText);
+    const lienSaisi = document.getElementById('link').value.trim();
+    const quantiteSaisie = document.getElementById('qty').value;
+    const opt = document.getElementById('srv-list').selectedOptions[0];
+    const serviceID = opt.dataset.id;
+    
+    // Vérifications avant l'envoi
+    if(!lienSaisi) return alert("Veuillez coller le lien du profil ou de la vidéo");
+    if(accounts[currentUser].balance < totalPrix) return alert("Solde insuffisant");
+    
+    if(confirm("Lancer le boost de " + quantiteSaisie + " ?")) {
+        accounts[currentUser].balance -= totalPrix;
+        sync();
 
-                try {
-                    // Construction de l'URL avec les paramètres pour le proxy
-                    const targetUrl = API_URL + "?key=" + API_KEY + "&action=add&service=" + opt.dataset.id + "&link=" + encodeURIComponent(l) + "&quantity=" + q;
-                    const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(targetUrl);
+        // URL de l'API avec les paramètres exacts : service, link, quantity
+        const targetUrl = `${API_URL}?key=${API_KEY}&action=add&service=${serviceID}&link=${encodeURIComponent(lienSaisi)}&quantity=${quantiteSaisie}`;
+        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(targetUrl);
 
-                    const r = await fetch(proxyUrl);
-                    const data = await r.json();
-                    
-                    // On déballe le contenu renvoyé par le proxy
-                    const res = JSON.parse(data.contents); 
+        try {
+            const r = await fetch(proxyUrl);
+            const data = await r.json();
+            const res = JSON.parse(data.contents); 
 
-                    if(res.order) {
-                        if (!accounts[currentUser].history) accounts[currentUser].history = [];
-                        accounts[currentUser].history.push({
-                            id: res.order,
-                            serviceName: opt.text,
-                            price: t.toFixed(2),
-                            qty: q,
-                            date: new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})
-                        });
-                        save(); renderHistory();
-                        alert("BOOST LANCÉ ! ID: " + res.order);
-                    } else { 
-                        alert("Erreur SMM: " + (res.error || "Problème API")); 
-                        accounts[currentUser].balance += t; sync(); 
-                    }
-                } catch(e) { 
-                    alert("Erreur réseau ou Proxy"); 
-                    accounts[currentUser].balance += t; sync(); 
-                }
+            if(res.order) {
+                // Enregistrement dans l'historique
+                if (!accounts[currentUser].history) accounts[currentUser].history = [];
+                accounts[currentUser].history.push({
+                    id: res.order,
+                    serviceName: opt.text,
+                    price: totalPrix.toFixed(2),
+                    qty: quantiteSaisie,
+                    date: new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})
+                });
+                save(); 
+                renderHistory();
+                alert("✅ BOOST RÉUSSI ! ID Commande : " + res.order);
+            } else { 
+                alert("Erreur SMM : " + (res.error || "ID de service invalide")); 
+                accounts[currentUser].balance += totalPrix; // Remboursement automatique
+                sync(); 
             }
+        } catch(e) { 
+            alert("Erreur réseau : Vérifiez votre connexion 3G/4G."); 
+            accounts[currentUser].balance += totalPrix; 
+            sync(); 
         }
+    }
+}
 
         function openAdmin() { if(prompt("PASS :") === "YOKO2025") document.getElementById('admin-panel').style.display='block'; }
         function ajouterCode() {
