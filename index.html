@@ -5,56 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Yokoboost | SMM Panel</title>
   
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="yoko-logo.png">
-  <link rel="icon" type="image/png" href="yoko-logo.png">
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { --orange: #ff9800; --bg: #000; --card: #121212; --btn: #1e1e1e; }
-    body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; user-select: none; }
+    body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; user-select: none; -webkit-tap-highlight-color: transparent; }
     
-    #login-screen { 
-        position: fixed; top:0; left:0; width:100%; height:100%; 
-        background:var(--bg); z-index:1000; display: flex; 
-        flex-direction: column; align-items: center; justify-content: center; 
-        padding: 25px; box-sizing: border-box; 
-    }
+    #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-sizing: border-box; }
+    .logo-big { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--orange); background: url('yoko-logo.png') center/cover; margin-bottom: 20px; background-color: #111; }
+    .brand-name { color: var(--orange); font-size: 26px; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; }
 
-    .logo-big { 
-        width: 120px; 
-        height: 120px; 
-        border-radius: 50%; 
-        border: 2px solid var(--orange); 
-        background: url('yoko-logo.png') center no-repeat; 
-        background-size: cover; 
-        margin-bottom: 20px;
-        background-color: #111;
-    }
-
-    .brand-name { color: var(--orange); font-size: 28px; font-weight: 900; margin-bottom: 30px; }
     input, select { width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 12px; border: 1px solid #333; background: #0a0a0a; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; }
-    .btn-main { width: 100%; padding: 18px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--orange), #f39c12); color: #000; font-weight: bold; text-transform: uppercase; cursor: pointer; }
+    .btn-main { width: 100%; padding: 18px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--orange), #f39c12); color: #000; font-weight: bold; text-transform: uppercase; cursor: pointer; display: block; }
     
     #app-content { display: none; }
-    .balance-card { background: var(--card); padding: 15px; border-radius: 20px; border: 1px solid #222; margin-bottom: 15px; }
-    .amt { font-size: 28px; font-weight: 800; color: var(--orange); }
-    .amt-fc { font-size: 14px; color: #777; font-weight: bold; }
-    .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .btn-action { padding: 12px; border-radius: 12px; border: 1px solid #333; background: var(--btn); color: #fff; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-buy { border-color: #25D366; color: #25D366; }
-    .icon-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
-    .icon-item { text-align: center; opacity: 0.4; min-width: 80px; cursor: pointer; }
+    .balance-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 15px; }
+    .amt { font-size: 32px; font-weight: 800; color: var(--orange); }
+    
+    .icon-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; }
+    .icon-item { text-align: center; opacity: 0.4; min-width: 75px; }
     .icon-item.active { opacity: 1; }
-    .icon-box { background: var(--btn); width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 5px; border: 2px solid transparent; }
-    .icon-item.active .icon-box { border-color: var(--orange); background: rgba(255, 152, 0, 0.1); }
-    .order-box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; }
-    .price-display { text-align: center; padding: 15px; border: 2px dashed #333; border-radius: 15px; margin: 15px 0; background: #080808; }
-    .total-usd { font-size: 30px; font-weight: 900; color: var(--orange); display: block; }
-    .total-fc { font-size: 15px; color: #888; font-weight: bold; }
-    #admin-panel { display:none; margin-top:20px; background:#080808; padding:15px; border-radius:15px; border:1px solid var(--orange); }
+    .icon-box { background: var(--btn); width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 5px; border: 2px solid transparent; }
+    .icon-item.active .icon-box { border-color: var(--orange); }
+
+    .order-box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid #222; }
+    .price-display { text-align: center; padding: 15px; border: 1px dashed #444; border-radius: 15px; margin: 15px 0; background: #080808; }
+    .total-usd { font-size: 28px; font-weight: 900; color: var(--orange); }
+
+    #admin-panel { display:none; margin-top:20px; background:#121212; padding:15px; border-radius:20px; border: 1px dashed var(--orange); }
+    .smm-link { color: #25D366; font-weight: bold; text-decoration: underline; font-size: 14px; display: block; margin-bottom: 10px; }
   </style>
 </head>
 <body>
@@ -62,157 +40,73 @@
     <div id="login-screen">
         <div class="logo-big"></div>
         <div class="brand-name">YOKOBOOST</div>
-        <input type="text" id="user-name" placeholder="Nom d'utilisateur">
+        <input type="text" id="user-name" placeholder="Utilisateur">
         <input type="password" id="user-pass" placeholder="Mot de passe">
-        <button class="btn-main" onclick="connexion()">Entrer</button>
+        <button class="btn-main" onclick="connexion()">ENTRER</button>
     </div>
 
     <div id="app-content">
         <div class="balance-card">
-            <span style="font-size:10px; color:#777;">SOLDE</span>
+            <span style="font-size:10px; color:#777;">SOLDE CLIENT</span>
             <div class="amt" id="u-bal">0.00 $</div>
-            <div class="amt-fc" id="u-bal-fc">0 FC</div>
+            <div id="u-bal-fc" style="font-size:14px; color:#555; font-weight:bold;">0 FC</div>
         </div>
         
-        <div class="action-buttons">
-            <button class="btn-action" onclick="recharge()">CODE</button>
-            <button class="btn-action btn-buy" onclick="acheterCode()">ACHETER (5$)</button>
-        </div>
-
         <div class="icon-scroll">
             <div class="icon-item active" onclick="selPlat('TikTok', this)"><div class="icon-box"><i class="fa-brands fa-tiktok"></i></div><span>TikTok</span></div>
-            <div class="icon-item" onclick="selPlat('Instagram', this)"><div class="icon-box"><i class="fa-brands fa-instagram" style="color:#E1306C"></i></div><span>Instagram</span></div>
-            <div class="icon-item" onclick="selPlat('Facebook', this)"><div class="icon-box"><i class="fa-brands fa-facebook" style="color:#1877F2"></i></div><span>Facebook</span></div>
-            <div class="icon-item" onclick="selPlat('YouTube', this)"><div class="icon-box"><i class="fa-brands fa-youtube" style="color:red"></i></div><span>YouTube</span></div>
+            <div class="icon-item" onclick="selPlat('Instagram', this)"><div class="icon-box"><i class="fa-brands fa-instagram" style="color:#E1306C"></i></div><span>Insta</span></div>
+            <div class="icon-item" onclick="selPlat('Facebook', this)"><div class="icon-box"><i class="fa-brands fa-facebook" style="color:#1877F2"></i></div><span>FB</span></div>
+            <div class="icon-item" onclick="selPlat('YouTube', this)"><div class="icon-box"><i class="fa-brands fa-youtube" style="color:red"></i></div><span>YT</span></div>
         </div>
 
         <div class="order-box">
             <select id="srv-list" onchange="calc()"></select>
             <input type="number" id="qty" value="1000" oninput="calc()">
-            <input type="url" id="link" placeholder="Lien du compte ou vidéo">
+            <input type="url" id="link" placeholder="Lien (URL)">
+            
             <div class="price-display">
-                <span class="total-usd" id="total-val">0.00 $</span>
-                <span class="total-fc" id="total-fc">0 FC</span>
+                <div class="total-usd" id="total-val">0.00 $</div>
+                <div id="total-fc" style="font-size:12px; color:#777;">0 FC</div>
             </div>
-            <button class="btn-main" onclick="processOrder()">Lancer le Boost</button>
-        </div>
-
-        <div class="order-box" style="margin-top:20px; background:#0a0a0a; border-color:#1a1a1a;">
-            <span style="font-size:11px; color:var(--orange); font-weight:bold; display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                <i class="fa-solid fa-clock-rotate-left"></i> RÉCENTES COMMANDES
-            </span>
-            <div id="history-list" style="max-height:250px; overflow-y:auto;"></div>
+            
+            <button class="btn-main" onclick="processOrder()">🚀 LANCER LE BOOST</button>
         </div>
 
         <div id="admin-panel">
-            <button onclick="ajouterCode()" class="btn-action" style="width:100%">+ CRÉER CODE</button>
+            <h3 style="color:var(--orange); margin:0 0 10px 0; font-size:14px;">ADMINISTRATION</h3>
+            <div id="smm-balance-area"></div>
+            <div id="admin-user-list"></div>
+            <button onclick="ajouterArgent()" style="width:100%; margin-top:15px; padding:12px; background:#222; border:1px solid #444; color:#fff; border-radius:10px;">+ RECHARGER UN CLIENT</button>
         </div>
-        <div style="text-align:center; margin-top:30px; font-size:10px; color:#222;" onclick="openAdmin()">GÉRANT</div>
+
+        <div style="text-align:center; padding:50px; font-size:11px; color:#333; text-decoration:underline;" onclick="openAdmin()">ACCÈS GÉRANT</div>
     </div>
 
     <script>
-        const API_KEY = "D4a32d304b6b28344f731359c3a7d75b";  
-        const API_URL = "https://tarantulasmm.com/api/v2";
+        const API_KEY = "B6dfad3a66e8b53ec961d3c819ee8950"; 
+        const API_URL = "https://smmpanelone.com/api/v2";
         const TAUX = 2400; 
-        const WHATSAPP_NUMBER = "243897238396";
 
-                let codesValides = JSON.parse(localStorage.getItem('yoko_codes')) || {
-            "BOOST-5-XYZ1": 5, 
-            "BOOST-5-XYZ2": 5, 
-            "BOOST-5-XYZ3": 5, 
-            "BOOST-5-XYZ4": 5, 
-            "BOOST-5-XYZ5": 5,
-            "YK10-55G9-R2": 10, 
-            "YK10-33T4-J6": 10, 
-            "YK10-88N1-S3": 10, 
-            "YK10-44W8-P9": 10, 
-            "YK10-00D2-F7": 10
-        };
-        
         let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
         let currentUser = null;
 
-        function renderHistory() {
-            const list = document.getElementById('history-list');
-            if (!list || !currentUser) return;
-            list.innerHTML = "";
-            const history = accounts[currentUser].history || [];
-            if (history.length === 0) {
-                list.innerHTML = "<div style='font-size:11px; color:#444; text-align:center; padding:10px;'>Aucun boost pour le moment.</div>";
-                return;
-            }
-            [...history].reverse().forEach(order => {
-                const div = document.createElement('div');
-                div.style = "padding:10px 0; border-bottom:1px solid #1a1a1a; font-size:11px;";
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <span style="color:#eee; font-weight:bold;">${order.serviceName}</span>
-                        <span style="color:var(--orange); font-weight:bold;">${order.price} $</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; color:#555; font-size:10px;">
-                        <span>ID: ${order.id} | Qté: ${order.qty}</span>
-                        <span>${order.date}</span>
-                    </div>`;
-                list.appendChild(div);
-            });
-        }
-
         const catalog = {
-            "TikTok": [
-                {id:"1264", n:"Abonnés (No Refill) (5$)", p:0.005}, 
-                {id:"15",   n:"Likes (3$)", p:0.003}, 
-                {id:"1735", n:"Vues (1.5$)", p:0.0015}, 
-                {id:"2044", n:"Sauvegardes (2$)", p:0.002},
-                {id:"1754", n:"Partages (2.5$)", p:0.0025},
-                {id:"2073", n:"Commentaires (8$)", p:0.008},
-                {id:"1282", n:"Live Likes (4$)", p:0.004},
-                {id:"888",  n:"Live Vues 15min (6$)", p:0.006},
-                {id:"2489", n:"Downloads (Refill) (5$)", p:0.005}
-            ],
-            "Instagram": [
-                {id:"1177", n:"Abonnés (Stable) (6$)", p:0.006}, 
-                {id:"1879", n:"Likes (Rapide) (3$)", p:0.003}, 
-                {id:"1674", n:"Vues Reels (2$)", p:0.002}, 
-                {id:"1682", n:"Commentaires (10$)", p:0.010},
-                {id:"1314", n:"Partages (4$)", p:0.004},
-                {id:"2301", n:"Sauvegardes (3$)", p:0.003},
-                {id:"1354", n:"Reposts (5$)", p:0.005},
-                {id:"4026", n:"Pack Vues + Likes (8$)", p:0.008},
-                {id:"3759", n:"Membres de Canal (12$)", p:0.012}
-            ],
-            "Facebook": [
-                {id:"4001", n:"Abonnés Profil (8$)", p:0.008},
-                {id:"52",   n:"Likes de Page (7$)", p:0.007},
-                {id:"3935", n:"Page Likes + Followers (12$)", p:0.012},
-                {id:"3860", n:"Membres de Groupe (10$)", p:0.010},
-                {id:"3867", n:"Vues Vidéos (3$)", p:0.003},
-                {id:"3843", n:"Réaction: Like (4$)", p:0.004},
-                {id:"3844", n:"Réaction: J'adore (4.5$)", p:0.0045},
-                {id:"3845", n:"Réaction: Étonnée (4.5$)", p:0.0045},
-                {id:"3846", n:"Réaction: Rire (4.5$)", p:0.0045}
-            ],
-            "YouTube": [
-                {id:"714",  n:"Abonnés (35$)", p:0.035},
-                {id:"111",  n:"Vues (Refill 30j) (12$)", p:0.012}, 
-                {id:"1786", n:"Likes (Refill 30j) (10$)", p:0.010}, 
-                {id:"206",  n:"Commentaires (15$)", p:0.015}, 
-                {id:"167",  n:"Shorts Likes (8$)", p:0.008},
-                {id:"1808", n:"Partages (7$)", p:0.007},
-                {id:"2394", n:"Live Streaming 15min (12$)", p:0.012}
-            ]
+            "TikTok": [{id:"3137", n:"Abonnés (5$)", p:0.005}, {id:"3117", n:"Likes (3$)", p:0.003}],
+            "Instagram": [{id:"2894", n:"Abonnés (6$)", p:0.006}],
+            "Facebook": [{id:"3110", n:"Abonnés (8$)", p:0.008}],
+            "YouTube": [{id:"2984", n:"Vues (12$)", p:0.012}]
         };
 
         function connexion() {
             const n = document.getElementById('user-name').value.toLowerCase().trim();
             const p = document.getElementById('user-pass').value;
-            if (!n || !p) return alert("Champs obligatoires");
-            if (!accounts[n]) accounts[n] = { pass: p, balance: 0, history: [] };
-            if (accounts[n].pass !== p) return alert("Mot de passe incorrect");
+            if(!n || !p) return alert("Remplir les champs");
+            if(!accounts[n]) accounts[n] = { pass: p, balance: 5, history: [] };
+            if(accounts[n].pass !== p) return alert("Erreur mot de passe");
             currentUser = n;
-            save();
             document.getElementById('login-screen').style.display='none';
             document.getElementById('app-content').style.display='block';
-            sync(); renderHistory();
+            sync();
             selPlat('TikTok', document.querySelector('.icon-item'));
         }
 
@@ -220,12 +114,7 @@
             const bal = accounts[currentUser].balance;
             document.getElementById('u-bal').innerText = bal.toFixed(2) + " $";
             document.getElementById('u-bal-fc').innerText = (bal * TAUX).toLocaleString() + " FC";
-            save();
-        }
-
-        function save() {
             localStorage.setItem('yoko_accounts', JSON.stringify(accounts));
-            localStorage.setItem('yoko_codes', JSON.stringify(codesValides));
         }
 
         function selPlat(p, el) {
@@ -234,8 +123,7 @@
             const s = document.getElementById('srv-list'); s.innerHTML = "";
             catalog[p].forEach(item => {
                 let opt = new Option(item.n, item.p);
-                opt.dataset.id = item.id;
-                s.add(opt);
+                opt.dataset.id = item.id; s.add(opt);
             });
             calc();
         }
@@ -243,79 +131,47 @@
         function calc() {
             const q = document.getElementById('qty').value;
             const p = document.getElementById('srv-list').value;
-            const total = q * p;
-            document.getElementById('total-val').innerText = total.toFixed(2) + " $";
-            document.getElementById('total-fc').innerText = (total * TAUX).toLocaleString() + " FC";
+            document.getElementById('total-val').innerText = (q * p).toFixed(2) + " $";
+            document.getElementById('total-fc').innerText = (q * p * TAUX).toLocaleString() + " FC";
         }
 
-        function recharge() {
-            const c = prompt("CODE :");
-            if (codesValides[c]) {
-                accounts[currentUser].balance += codesValides[c];
-                delete codesValides[c];
-                sync(); alert("Compte crédité !");
-            } else alert("Code invalide");
-        }
+        function processOrder() {
+            const total = parseFloat(document.getElementById('total-val').innerText);
+            const link = document.getElementById('link').value.trim();
+            const qty = document.getElementById('qty').value;
+            const sId = document.getElementById('srv-list').selectedOptions[0].dataset.id;
 
-        function acheterCode() {
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Bonjour Yokoboost, je souhaite acheter un code de recharge de 5$`, '_blank');
-        }
+            if(!link || accounts[currentUser].balance < total) return alert("Lien vide ou solde insuffisant");
 
-        async function processOrder() {
-    // Récupération des données corrigées
-    const totalPrix = parseFloat(document.getElementById('total-val').innerText);
-    const lienSaisi = document.getElementById('link').value.trim();
-    const quantiteSaisie = document.getElementById('qty').value;
-    const opt = document.getElementById('srv-list').selectedOptions[0];
-    const serviceID = opt.dataset.id;
-    
-    // Vérifications avant l'envoi
-    if(!lienSaisi) return alert("Veuillez coller le lien du profil ou de la vidéo");
-    if(accounts[currentUser].balance < totalPrix) return alert("Solde insuffisant");
-    
-    if(confirm("Lancer le boost de " + quantiteSaisie + " ?")) {
-        accounts[currentUser].balance -= totalPrix;
-        sync();
-
-        // URL de l'API avec les paramètres exacts : service, link, quantity
-        const targetUrl = `${API_URL}?key=${API_KEY}&action=add&service=${serviceID}&link=${encodeURIComponent(lienSaisi)}&quantity=${quantiteSaisie}`;
-        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(targetUrl);
-
-        try {
-            const r = await fetch(proxyUrl);
-            const data = await r.json();
-            const res = JSON.parse(data.contents); 
-
-            if(res.order) {
-                // Enregistrement dans l'historique
-                if (!accounts[currentUser].history) accounts[currentUser].history = [];
-                accounts[currentUser].history.push({
-                    id: res.order,
-                    serviceName: opt.text,
-                    price: totalPrix.toFixed(2),
-                    qty: quantiteSaisie,
-                    date: new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})
-                });
-                save(); 
-                renderHistory();
-                alert("✅ BOOST RÉUSSI ! ID Commande : " + res.order);
-            } else { 
-                alert("Erreur SMM : " + (res.error || "ID de service invalide")); 
-                accounts[currentUser].balance += totalPrix; // Remboursement automatique
-                sync(); 
+            if(confirm("Lancer ce boost ?")) {
+                const url = `${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}`;
+                window.location.href = url; // Utilisation de redirection directe (plus sûr sur mobile)
             }
-        } catch(e) { 
-            alert("Erreur réseau : Vérifiez votre connexion 3G/4G."); 
-            accounts[currentUser].balance += totalPrix; 
-            sync(); 
         }
-    }
-}
 
-        function openAdmin() { if(prompt("PASS :") === "YOKO2025") document.getElementById('admin-panel').style.display='block'; }
-        function ajouterCode() {
-            const c = prompt("Code :"); const v = parseFloat(prompt("Valeur ($) :"));
-            if(c && v) { codesValides[c] = v; save(); alert("Code créé !"); }
+        function openAdmin() {
+            if(prompt("MOT DE PASSE GÉRANT :") === "YOKO2025") {
+                document.getElementById('admin-panel').style.display='block';
+                const balLink = `${API_URL}?key=${API_KEY}&action=balance`;
+                document.getElementById('smm-balance-area').innerHTML = `<a href="${balLink}" class="smm-link" target="_blank">Cliquez ici pour voir votre solde SMM</a>`;
+                refreshAdmin();
+            }
+        }
+
+        function refreshAdmin() {
+            const list = document.getElementById('admin-user-list'); list.innerHTML = "";
+            Object.keys(accounts).forEach(u => {
+                const d = document.createElement('div');
+                d.style = "padding:10px; border-bottom:1px solid #222; display:flex; justify-content:space-between; font-size:12px;";
+                d.innerHTML = `<span>${u}</span><span style="color:var(--orange)">${accounts[u].balance.toFixed(2)}$</span>`;
+                list.appendChild(d);
+            });
+        }
+
+        function ajouterArgent() {
+            const u = prompt("Nom du client :").toLowerCase();
+            const m = parseFloat(prompt("Argent à ajouter ($) :"));
+            if(accounts[u] && m) { accounts[u].balance += m; sync(); refreshAdmin(); alert("Ok !"); }
         }
     </script>
 </body>
