@@ -188,7 +188,7 @@ const WA_ADMIN = "243897238396";
 
         const catalog = {
             "TikTok": [
-                {id:"1264", n:"Abonnés (No Refill)", p:0.005}, {id:"15", n:"Likes", p:0.003}, {id:"1735", n:"Vues", p:0.001},
+                {id:"1264", n:"Abonnés (No Refill)", p:0.005}, {id:"15", n:"Likes", p:0.001}, {id:"1735", n:"Vues", p:0.001},
                 {id:"2044", n:"Sauvegardes", p:0.002}, {id:"1754", n:"Partages", p:0.002}, {id:"2073", n:"Commentaires", p:0.008},
                 {id:"1282", n:"Live Likes", p:0.004}, {id:"888", n:"Live 15min", p:0.006}, {id:"2489", n:"Downloads (Refill)", p:0.005}
             ],
@@ -322,33 +322,69 @@ const WA_ADMIN = "243897238396";
         }
 
         async function processOrder() {
-            const btn = document.getElementById('btn-order');
-            const total = parseFloat(document.getElementById('total-val').innerText);
-            const link = document.getElementById('link').value.trim();
-            const sList = document.getElementById('srv-list');
-            const sId = sList.selectedOptions[0].dataset.id;
-            const sName = sList.selectedOptions[0].text;
-            const qty = document.getElementById('qty').value;
+    const btn = document.getElementById('btn-order');
+    const total = parseFloat(document.getElementById('total-val').innerText);
+    const linkInput = document.getElementById('link');
+    const link = linkInput.value.trim();
+    const sList = document.getElementById('srv-list');
+    const sId = sList.selectedOptions[0].dataset.id;
+    const sName = sList.selectedOptions[0].text;
+    const qty = document.getElementById('qty').value;
 
-            if(!link || link.length < 5) return alert("Lien invalide !");
-            if(accounts[currentUser].balance < total) return alert("Solde insuffisant.");
-            
-            if(confirm(`Débiter ${total}$ de votre compte ?`)) {
-                btn.disabled = true; btn.innerText = "LANCEMENT...";
-                const url = `${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}`;
-                try {
-                    const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url));
-                    const d = JSON.parse((await r.json()).contents);
-                    if(d.order) { 
-                        accounts[currentUser].balance -= total;
-                        if(!accounts[currentUser].orders) accounts[currentUser].orders = [];
-                        accounts[currentUser].orders.push({id: d.order, srv: sName});
-                        sync(); alert("🚀 SUCCÈS ! Commande n°" + d.order); 
-                    } else alert("SMM Error: " + (d.error || "Problème API"));
-                } catch(e) { alert("Erreur serveur."); }
-                btn.disabled = false; btn.innerText = "🚀 Confirmer le Boost";
+    if(!link || link.length < 5) return alert("Lien invalide !");
+    if(accounts[currentUser].balance < total) return alert("Solde insuffisant.");
+    
+    if(confirm(`Confirmer la commande pour ${total}$ ?`)) {
+        btn.disabled = true; 
+        btn.innerText = "CONNEXION EN COURS...";
+
+        // Construction de l'URL API directe
+        const apiParams = `?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}&cb=${Date.now()}`;
+        const finalUrl = API_URL + apiParams;
+        
+        // Liste de proxys pour éviter les blocages "Erreur de connexion"
+        const proxys = [
+            `https://api.allorigins.win/get?url=${encodeURIComponent(finalUrl)}`,
+            `https://corsproxy.io/?${encodeURIComponent(finalUrl)}`
+        ];
+
+        let success = false;
+
+        for (let proxyUrl of proxys) {
+            if (success) break;
+            try {
+                const r = await fetch(proxyUrl);
+                if (!r.ok) throw new Error("Proxy instable");
+                
+                const data = await r.json();
+                // AllOrigins met le contenu dans .contents, corsproxy.io renvoie directement le JSON
+                const res = typeof data.contents === 'string' ? JSON.parse(data.contents) : data;
+
+                if(res && res.order) { 
+                    accounts[currentUser].balance -= total;
+                    if(!accounts[currentUser].orders) accounts[currentUser].orders = [];
+                    accounts[currentUser].orders.push({id: res.order, srv: sName});
+                    sync(); 
+                    linkInput.value = ""; 
+                    alert("🚀 SUCCÈS ! Commande n°" + res.order);
+                    success = true;
+                } else if (res && res.error) {
+                    alert("SMM Erreur: " + res.error);
+                    success = true; // On arrête car l'API a répondu (même si c'est une erreur de service)
+                }
+            } catch(e) {
+                console.log("Essai avec proxy suivant...");
             }
         }
+
+        if(!success) {
+            alert("❌ Erreur de connexion : Les serveurs de relais sont saturés. Réessayez dans 1 minute.");
+        }
+
+        btn.disabled = false; 
+        btn.innerText = "🚀 Confirmer le Boost";
+    }
+}
 
         function openAdmin() {
             if(prompt("ADMIN KEY :") === "YOKO2025") {
