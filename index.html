@@ -10,67 +10,130 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
 <style>
+/* Section Profil */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 5px;
+    margin-bottom: 10px;
+}
+
+.avatar-container {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, var(--orange), #f39c12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 4px 15px rgba(255,152,0,0.3);
+}
+
+.wave-emoji {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    font-size: 20px;
+    animation: wave-animation 2.5s infinite;
+    transform-origin: 70% 70%;
+}
+
+@keyframes wave-animation {
+    0% { transform: rotate( 0.0deg) }
+   10% { transform: rotate(14.0deg) }
+   20% { transform: rotate(-8.0deg) }
+   30% { transform: rotate(14.0deg) }
+   40% { transform: rotate(-4.0deg) }
+   50% { transform: rotate(10.0deg) }
+   60% { transform: rotate( 0.0deg) }
+  100% { transform: rotate( 0.0deg) }
+}
+
+.user-info-text h2 {
+    margin: 0;
+    font-size: 18px;
+    text-transform: capitalize;
+}
+
+.user-info-text p {
+    margin: 0;
+    font-size: 11px;
+    color: #666;
+}
+
 :root { 
     --orange: #ff9800; 
     --bg: #000; 
     --card: #121212; 
     --btn: #1e1e1e; 
     --success: #2ecc71; 
+    --text: #ffffff;
 }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; user-select: none; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-    
-    /* Splash & Login */
-    #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:radial-gradient(circle at center, #111, #000); z-index:1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-sizing: border-box; }
-    .logo-big { width: 100px; height: 100px; border-radius: 30px; border: 2px solid var(--orange); background: #000; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: var(--orange); box-shadow: 0 10px 30px rgba(255,152,0,0.3); animation: float 3s ease-in-out infinite; }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    .brand-name { color: var(--orange); font-size: 28px; font-weight: 900; margin-bottom: 35px; letter-spacing: 4px; text-shadow: 0 0 15px rgba(255,152,0,0.4); }
 
-    input, select { width: 100%; padding: 18px; margin-bottom: 15px; border-radius: 15px; border: 1px solid #222; background: #080808; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; transition: 0.3s; }
-    input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 10px rgba(255,152,0,0.1); }
-    .btn-main { width: 100%; padding: 20px; border: none; border-radius: 15px; background: linear-gradient(45deg, var(--orange), #f39c12); color: #000; font-weight: 900; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: 0.2s; }
-    .btn-main:active { transform: scale(0.97); opacity: 0.8; }
-    
-    #app-content { display: none; max-width: 500px; margin: auto; animation: fadeIn 0.5s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* --- MODE ECONOMIE --- */
+body.eco-mode {
+    --bg: #000000 !important;
+    --card: #000000 !important;
+    --btn: #000000 !important;
+}
+body.eco-mode .balance-card, 
+body.eco-mode .order-box,
+body.eco-mode .icon-box,
+body.eco-mode .history-box {
+    border: 1px solid #333 !important;
+    background: #000 !important;
+    box-shadow: none !important;
+}
+body.eco-mode .btn-main {
+    background: var(--orange) !important;
+}
 
-    /* Cartes */
-    .balance-card { background: linear-gradient(135deg, #1a1a1a, #0a0a0a); padding: 25px; border-radius: 25px; border: 1px solid #222; margin-bottom: 20px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-    .amt { font-size: 38px; font-weight: 900; color: var(--orange); margin: 5px 0; }
-    .user-actions { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
-    .btn-action { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid #333; background: var(--btn); color: #fff; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
-    .btn-action:hover { background: #252525; border-color: var(--orange); }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; user-select: none; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
 
-    /* Animation Cadeau Bonus */
-    #gift-bonus { display: none; position: relative; cursor: pointer; animation: giftShake 0.6s infinite alternate; }
-    @keyframes giftShake { 0% { transform: rotate(-10deg) scale(1.1); } 100% { transform: rotate(10deg) scale(1.2); } }
-    .gift-tag { position: absolute; top: -10px; right: -5px; background: #e74c3c; color: white; font-size: 8px; padding: 2px 4px; border-radius: 5px; font-weight: bold; }
+/* Splash & Login */
+#login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:radial-gradient(circle at center, #111, #000); z-index:1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-sizing: border-box; }
+.logo-big { width: 100px; height: 100px; border-radius: 30px; border: 2px solid var(--orange); background: #000; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: var(--orange); box-shadow: 0 10px 30px rgba(255,152,0,0.3); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.brand-name { color: var(--orange); font-size: 28px; font-weight: 900; margin-bottom: 35px; letter-spacing: 4px; text-shadow: 0 0 15px rgba(255,152,0,0.4); }
 
-    /* Navigation */
-    .icon-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0 20px; margin-bottom: 10px; scrollbar-width: none; }
-    .icon-scroll::-webkit-scrollbar { display: none; }
-    .icon-item { text-align: center; opacity: 0.3; min-width: 90px; cursor: pointer; transition: 0.4s; }
-    .icon-item.active { opacity: 1; transform: translateY(-5px); }
-    .icon-box { background: var(--btn); width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 10px; border: 2px solid transparent; transition: 0.3s; }
-    .icon-item.active .icon-box { border-color: var(--orange); background: rgba(255,152,0,0.15); box-shadow: 0 10px 20px rgba(255,152,0,0.2); }
+input, select { width: 100%; padding: 18px; margin-bottom: 15px; border-radius: 15px; border: 1px solid #222; background: #080808; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; transition: 0.3s; }
+input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 10px rgba(255,152,0,0.1); }
+.btn-main { width: 100%; padding: 20px; border: none; border-radius: 15px; background: linear-gradient(45deg, var(--orange), #f39c12); color: #000; font-weight: 900; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: 0.2s; }
 
-    /* Commande */
-    .order-box { background: var(--card); padding: 25px; border-radius: 30px; border: 1px solid #1e1e1e; margin-bottom: 20px; }
-    .price-display { text-align: center; padding: 20px; border: 1px dashed #333; border-radius: 20px; margin: 20px 0; background: rgba(255,152,0,0.02); }
+#app-content { display: none; max-width: 500px; margin: auto; animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Historique */
-    .history-box { background: #0a0a0a; border-radius: 20px; padding: 15px; margin-top: 20px; border: 1px solid #111; }
-    .hist-item { font-size: 11px; padding: 10px 0; border-bottom: 1px solid #111; display: flex; justify-content: space-between; }
+.balance-card { background: linear-gradient(135deg, #1a1a1a, #0a0a0a); padding: 25px; border-radius: 25px; border: 1px solid #222; margin-bottom: 20px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+.amt { font-size: 38px; font-weight: 900; color: var(--orange); margin: 5px 0; }
+.user-actions { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
+.btn-action { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid #333; background: var(--btn); color: #fff; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
 
-    /* Modals */
-    #promo-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:2000; justify-content:center; align-items:center; padding:20px; backdrop-filter: blur(10px); }
-    .modal-box { background:var(--card); width:100%; max-width:400px; padding:30px; border-radius:35px; border:1px solid #222; text-align:center; box-shadow: 0 20px 50px rgba(0,0,0,1); }
+#gift-bonus { display: none; position: relative; cursor: pointer; animation: giftShake 0.6s infinite alternate; }
+@keyframes giftShake { 0% { transform: rotate(-10deg) scale(1.1); } 100% { transform: rotate(10deg) scale(1.2); } }
+.gift-tag { position: absolute; top: -10px; right: -5px; background: #e74c3c; color: white; font-size: 8px; padding: 2px 4px; border-radius: 5px; font-weight: bold; }
 
-    /* Admin */
-    #admin-panel { display:none; margin-top:40px; background:#080808; padding:25px; border-radius:30px; border: 1px solid #333; }
-    .admin-section { margin-bottom: 25px; background: #111; padding: 18px; border-radius: 20px; border: 1px solid #1a1a1a; }
-    .admin-row { padding:14px; border-bottom: 1px solid #1a1a1a; display:flex; justify-content:space-between; align-items:center; font-size:13px; }
-    .btn-tool { background: #222; border: 1px solid #333; color: #fff; padding: 10px 14px; border-radius: 10px; cursor: pointer; }
-  </style>
+.icon-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0 20px; margin-bottom: 10px; scrollbar-width: none; }
+.icon-item { text-align: center; opacity: 0.3; min-width: 90px; cursor: pointer; transition: 0.4s; }
+.icon-item.active { opacity: 1; transform: translateY(-5px); }
+.icon-box { background: var(--btn); width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 10px; border: 2px solid transparent; transition: 0.3s; }
+.icon-item.active .icon-box { border-color: var(--orange); background: rgba(255,152,0,0.15); box-shadow: 0 10px 20px rgba(255,152,0,0.2); }
+
+.order-box { background: var(--card); padding: 25px; border-radius: 30px; border: 1px solid #1e1e1e; margin-bottom: 20px; }
+.price-display { text-align: center; padding: 20px; border: 1px dashed #333; border-radius: 20px; margin: 20px 0; background: rgba(255,152,0,0.02); }
+
+.history-box { background: #0a0a0a; border-radius: 20px; padding: 15px; margin-top: 20px; border: 1px solid #111; }
+.hist-item { font-size: 11px; padding: 10px 0; border-bottom: 1px solid #111; display: flex; justify-content: space-between; }
+
+#promo-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:2000; justify-content:center; align-items:center; padding:20px; backdrop-filter: blur(10px); }
+.modal-box { background:var(--card); width:100%; max-width:400px; padding:30px; border-radius:35px; border:1px solid #222; text-align:center; box-shadow: 0 20px 50px rgba(0,0,0,1); }
+
+#admin-panel { display:none; margin-top:40px; background:#080808; padding:25px; border-radius:30px; border: 1px solid #333; }
+.admin-section { margin-bottom: 25px; background: #111; padding: 18px; border-radius: 20px; border: 1px solid #1a1a1a; }
+.admin-row { padding:14px; border-bottom: 1px solid #1a1a1a; display:flex; justify-content:space-between; align-items:center; font-size:13px; }
+</style>
 </head>
 <body>
 
@@ -81,39 +144,48 @@
             <input type="text" id="user-name" placeholder="Nom d'utilisateur">
             <input type="text" id="user-pass" placeholder="Mot de passe ou Code Promo">
             <button class="btn-main" onclick="connexion()">Démarrer l'expérience</button>
-            <p style="font-size: 10px; color: #444; margin-top: 15px; text-align: center;">Nouveau ? Utilisez un code promo comme mot de passe pour un bonus.</p>
+            <p style="font-size: 10px; color: #444; margin-top: 15px; text-align: center;">Rechargez pour 5$ ou 5€ via WhatsApp.</p>
         </div>
     </div>
 
     <div id="promo-modal">
         <div class="modal-box">
             <div style="font-size: 40px; color: var(--orange); margin-bottom: 15px;"><i class="fa-solid fa-receipt"></i></div>
-            <h3 style="margin:0 0 10px 0;">Recharge Express</h3>
-            <p style="font-size: 12px; color: #666; margin-bottom: 25px;">Utilisez un code YOKO pour créditer votre solde immédiatement.</p>
-            <input type="text" id="promo-input" placeholder="YK-XXXXX-XX" style="text-align:center; font-weight:bold; color:var(--orange);">
-            <button class="btn-main" onclick="validerCodePromo()" style="margin-bottom:15px;">Activer maintenant</button>
-            <button class="btn-action" onclick="demanderCodeWA()" style="width:100%; border-color:#25D366; color:#25D366; background: rgba(37, 211, 102, 0.05);">
+            <h3>Recharge Express</h3>
+            <input type="text" id="promo-input" placeholder="YK-XXXXX-XX" style="text-align:center;">
+            <button class="btn-main" onclick="validerCodePromo()" style="margin-bottom:15px;">Activer</button>
+            <button class="btn-action" onclick="demanderCodeWA()" style="width:100%; border-color:#25D366; color:#25D366;">
                 <i class="fa-brands fa-whatsapp"></i> Acheter un code (5$ / 5€)
             </button>
-            <p onclick="closePromo()" style="margin-top:25px; font-size:13px; color:#444; cursor:pointer; font-weight:bold;">Fermer la fenêtre</p>
+            <p onclick="closePromo()" style="margin-top:25px; cursor:pointer;">Fermer</p>
         </div>
     </div>
 
     <div id="app-content">
+<div class="user-profile">
+    <div class="avatar-container">
+        <i class="fa-solid fa-user-astronaut" style="color: #000;"></i>
+        <div class="wave-emoji">👋</div>
+    </div>
+    <div class="user-info-text">
+        <p>Heureux de vous revoir,</p>
+        <h2 id="display-username">utilisateur</h2>
+    </div>
+</div>
         <div class="balance-card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:11px; color:#555; font-weight:bold; letter-spacing:1px;">PORTEFEUILLE</span>
+                <span style="font-size:11px; font-weight:bold;">PORTEFEUILLE</span>
                 <span style="font-size:10px; background:rgba(255,152,0,0.1); color:var(--orange); padding:4px 8px; border-radius:6px;">TAUX 2400</span>
             </div>
             <div class="amt" id="u-bal">0.00 $</div>
             <div id="u-bal-fc" style="font-size:15px; color:#444; font-weight:800;">0 FC</div>
             <div class="user-actions">
-                <div id="gift-bonus" onclick="alert('Cadeau Activé : Votre prochain dépôt sera boosté de 50% !')">
+                <div id="gift-bonus" onclick="alert('Bonus 50% actif sur votre prochain dépôt !')">
                     <i class="fa-solid fa-gift" style="color: #e74c3c; font-size: 24px;"></i>
                     <span class="gift-tag">+50%</span>
                 </div>
                 <button class="btn-action" onclick="rechargerApp()"><i class="fa-solid fa-plus-circle"></i> Dépôt</button>
-                <button class="btn-action" onclick="openPromo()"><i class="fa-solid fa-qrcode"></i> Utiliser Code</button>
+                <button class="btn-action" onclick="openPromo()"><i class="fa-solid fa-qrcode"></i> Code</button>
             </div>
         </div>
         
@@ -125,25 +197,26 @@
         </div>
 
         <div class="order-box">
-            <label style="font-size:11px; color:#444; font-weight:bold; margin-bottom:8px; display:block; margin-left:5px;">CHOISIR UN SERVICE</label>
             <select id="srv-list" onchange="calc()"></select>
-            
-            <label style="font-size:11px; color:#444; font-weight:bold; margin-bottom:8px; display:block; margin-left:5px;">QUANTITÉ SOUHAITÉE</label>
             <input type="number" id="qty" value="1000" min="100" oninput="calc()">
-            
-            <label style="font-size:11px; color:#444; font-weight:bold; margin-bottom:8px; display:block; margin-left:5px;">LIEN DU COMPTE / VIDÉO</label>
-            <input type="url" id="link" placeholder="https://..." required>
+            <input type="url" id="link" placeholder="Lien (https://...)" required>
             
             <div class="price-display">
                 <div style="font-size:32px; font-weight:900; color:var(--orange);" id="total-val">0.00 $</div>
-                <div id="total-fc" style="font-size:14px; color:#555; font-weight:bold;">0 FC</div>
+                <div id="total-fc" style="font-size:14px; color:#555;">0 FC</div>
             </div>
             <button class="btn-main" onclick="processOrder()" id="btn-order">🚀 Confirmer le Boost</button>
 
             <div class="history-box" id="user-history">
-                <div style="font-size:10px; color:#333; margin-bottom:8px; font-weight:bold; border-bottom:1px solid #111; padding-bottom:5px;">RÉCENTES COMMANDES</div>
+                <div style="font-size:10px; color:#333; margin-bottom:8px; font-weight:bold;">RÉCENTES COMMANDES</div>
                 <div id="hist-content"></div>
             </div>
+        </div>
+
+        <div style="padding: 0 10px; margin-bottom: 10px;">
+            <button class="btn-action" onclick="toggleEcoMode()" style="width: 100%; border-color: #333;">
+                <i class="fa-solid fa-leaf"></i> <span id="eco-text">Mode Économie : OFF</span>
+            </button>
         </div>
 
         <div style="padding: 0 10px; margin-bottom: 20px;">
@@ -153,34 +226,20 @@
         </div>
 
         <div id="admin-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; background:#1a1a1a; padding:15px; border-radius:15px;">
-                <h2 style="color:var(--orange); font-size:16px; margin:0;">ÉTAT TARANTULASMM</h2>
-                <div style="text-align:right;">
-                    <div id="smm-balance-display" style="font-weight:900; font-size:16px; color:var(--success);">---</div>
-                </div>
-            </div>
-            
-            <div class="admin-section">
-                <h4 style="margin:0 0 15px 0; font-size:13px; color:#666;">GESTION UTILISATEURS</h4>
-                <div id="admin-user-list"></div>
-            </div>
-
-            <div class="admin-section">
-                <h4 style="margin:0 0 15px 0; font-size:13px; color:#666;">GÉNÉRATEUR DE CODES (5$)</h4>
-                <div id="admin-code-list" style="margin-bottom:15px;"></div>
-                <button class="btn-main" onclick="creerCode()" style="background:var(--success); color:white; padding:15px;">+ Créer un nouveau code</button>
-            </div>
+            <div id="smm-balance-display">---</div>
+            <div id="admin-user-list"></div>
+            <div id="admin-code-list"></div>
+            <button class="btn-main" onclick="creerCode()" style="background:var(--success); color:white;">+ Créer Code</button>
         </div>
 
-        <div style="text-align:center; padding:60px; font-size:10px; color:#222; letter-spacing:4px; font-weight:bold;" onclick="openAdmin()">YOKOBOOST CORE PANEL</div>
+        <div style="text-align:center; padding:40px; font-size:10px; color:#222; letter-spacing:4px;" onclick="openAdmin()">YOKOBOOST CORE</div>
     </div>
 
     <script>
-// Configuration API
-const API_KEY = "ef7c8ad4e2e24a2e24807e7941c25d03"; 
-const API_URL = "https://tarantulasmm.com/api/v2";
-const TAUX = 2400; 
-const WA_ADMIN = "243897238396"; 
+        const API_KEY = "ef7c8ad4e2e24a2e24807e7941c25d03"; 
+        const API_URL = "https://tarantulasmm.com/api/v2";
+        const TAUX = 2400; 
+        const WA_ADMIN = "243897238396"; 
 
         let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
         let customCodes = JSON.parse(localStorage.getItem('yoko_custom_codes')) || {};
@@ -189,7 +248,7 @@ const WA_ADMIN = "243897238396";
         const catalog = {
             "TikTok": [
                 {id:"1264", n:"Abonnés pour 1000", p:0.005}, {id:"15", n:"Likes pour 1000", p:0.001}, {id:"1735", n:"Vues pour 1000", p:0.001},
-                {id:"2044", n:"Sauvegardes pour 1000", p:0.002}, {id:"1754", n:"Partages pour 1000", p:0.002}, {id:"2073", n:"Commentaires pour 1000", p:0.008},
+                {id:"2044", n:"Sauvegardes pour 1000", p:0.002}, {id:"2073", n:"Commentaires pour 1000", p:0.008},
                 {id:"1282", n:"Live Likes pour 1000", p:0.004}, {id:"888", n:"Live 15min", p:0.006}, {id:"2489", n:"Downloads pour 1000", p:0.005},
 {id:"1754", n:"Shares pour 1000", p:0.001}
             ],
@@ -210,105 +269,81 @@ const WA_ADMIN = "243897238396";
             ]
         };
 
-        function connexion() {
-            const n = document.getElementById('user-name').value.toLowerCase().trim();
-            const p = document.getElementById('user-pass').value.trim();
-            if(!n || !p) return alert("Veuillez remplir les accès.");
-            
-            if(!accounts[n]) {
-                accounts[n] = { 
-                    pass: p, 
-                    balance: 0, 
-                    orders: [], 
-                    isBonusEligible: (p === "BOOST2025")
-                };
-            }
-            
-            if(accounts[n].pass !== p && p !== "BOOST2025") return alert("Accès refusé.");
-            
-            currentUser = n;
-            document.getElementById('login-screen').style.display='none';
-            document.getElementById('app-content').style.display='block';
-            sync();
-            selPlat('TikTok', document.querySelector('.icon-item'));
-        }
+        // --- GESTION CONNEXION ---
+function connexion() {
+    const n = document.getElementById('user-name').value.toLowerCase().trim();
+    const p = document.getElementById('user-pass').value.trim();
+    
+    if(!n || !p) return alert("Champs vides.");
+    
+    // Création ou récupération du compte
+    if(!accounts[n]) accounts[n] = { pass: p, balance: 0, orders: [], isBonusEligible: (p === "BOOST2025") };
+    if(accounts[n].pass !== p && p !== "BOOST2025") return alert("Erreur d'accès.");
+    
+    currentUser = n;
 
-        function deconnexion() {
-            if(confirm("Voulez-vous vous déconnecter ?")) {
-                currentUser = null;
-                document.getElementById('app-content').style.display = 'none';
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('user-name').value = "";
-                document.getElementById('user-pass').value = "";
-                window.scrollTo(0, 0);
-            }
-        }
+    // --- MISE À JOUR DE L'INTERFACE ---
+    // Affiche le nom d'utilisateur (avec majuscule)
+    document.getElementById('display-username').innerText = n.charAt(0).toUpperCase() + n.slice(1);
+    
+    // Affiche la barre de navigation si elle existe
+    const nav = document.querySelector('.bottom-nav');
+    if(nav) nav.style.display = 'flex';
 
-        function sync() {
-            localStorage.setItem('yoko_accounts', JSON.stringify(accounts));
-            localStorage.setItem('yoko_custom_codes', JSON.stringify(customCodes));
-            if(currentUser) {
-                const acc = accounts[currentUser];
-                document.getElementById('u-bal').innerText = acc.balance.toFixed(2) + " $";
-                document.getElementById('u-bal-fc').innerText = (acc.balance * TAUX).toLocaleString() + " FC";
-                document.getElementById('gift-bonus').style.display = acc.isBonusEligible ? 'block' : 'none';
+    // Basculement des écrans
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    
+    sync();
+    selPlat('TikTok', document.querySelector('.icon-item'));
+}
 
-                const hCont = document.getElementById('hist-content');
-                hCont.innerHTML = acc.orders && acc.orders.length > 0 
-                    ? acc.orders.slice(-3).reverse().map(o => `<div class="hist-item"><span>${o.srv}</span> <b>${o.id}</b></div>`).join('')
-                    : "<div style='font-size:10px; color:#222; padding:10px 0;'>Aucune activité.</div>";
-            }
-        }
-
-        async function getSmmBalance() {
-            const el = document.getElementById('smm-balance-display'); 
-            el.innerText = "Check...";
-            el.style.color = "var(--orange)";
-            
-            const targetUrl = `${API_URL}?key=${API_KEY}&action=balance`;
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-
-            try {
-                const r = await fetch(proxyUrl);
-                const d = await r.json();
-                const result = JSON.parse(d.contents);
-                
-                if(result && result.balance) {
-                    el.innerText = result.balance + " " + (result.currency || "$");
-                    el.style.color = "var(--success)"; 
-                } else {
-                    el.innerText = "Error API";
-                    el.style.color = "red";
-                }
-            } catch(e) { 
-                el.innerText = "Offline"; 
-                el.style.color = "red";
-            }
-        }
-
-        function openPromo() { document.getElementById('promo-modal').style.display='flex'; }
-        function closePromo() { document.getElementById('promo-modal').style.display='none'; }
+function sync() {
+    localStorage.setItem('yoko_accounts', JSON.stringify(accounts));
+    localStorage.setItem('yoko_custom_codes', JSON.stringify(customCodes));
+    
+    if(currentUser) {
+        const acc = accounts[currentUser];
+        // Mise à jour de l'interface utilisateur
+        document.getElementById('u-bal').innerText = acc.balance.toFixed(2) + " $";
+        document.getElementById('u-bal-fc').innerText = (acc.balance * TAUX).toLocaleString() + " FC";
         
-        function validerCodePromo() {
-            const c = document.getElementById('promo-input').value.toUpperCase().trim();
-            if(customCodes[c]) {
-                let montantInitial = customCodes[c];
-                let montantFinal = montantInitial;
+        const hCont = document.getElementById('hist-content');
+        hCont.innerHTML = acc.orders.slice(-3).reverse().map(o => 
+            `<div class="hist-item"><span>${o.srv}</span> <b>${o.id}</b></div>`
+        ).join('') || "Aucune commande.";
+    }
 
-                if(accounts[currentUser].isBonusEligible) {
-                    montantFinal = montantInitial * 1.5;
-                    accounts[currentUser].isBonusEligible = false;
-                    alert("🎁 Félicitations ! Bonus de 50% appliqué.");
-                }
+    // --- AJOUT POUR LE GÉRANT (Ce qui te manquait) ---
+    const userListDiv = document.getElementById('admin-user-list');
+    const codeListDiv = document.getElementById('admin-code-list');
 
-                accounts[currentUser].balance += montantFinal;
-                delete customCodes[c]; sync(); alert("✅ Compte crédité !"); closePromo();
-            } else alert("Code expiré ou erroné.");
+    // Mise à jour de la liste des clients pour le gérant
+    if(userListDiv) {
+        userListDiv.innerHTML = '<h4 style="color:var(--orange); font-size:12px; margin-bottom:10px;">CLIENTS & SOLDES</h4>';
+        for (let name in accounts) {
+            userListDiv.innerHTML += `
+                <div class="admin-row" style="padding:10px 0; border-bottom:1px solid #1a1a1a;">
+                    <span>${name}</span>
+                    <b onclick="modifierSolde('${name}')" style="color:var(--orange); cursor:pointer;">${accounts[name].balance.toFixed(2)} $</b>
+                </div>`;
         }
+    }
 
-        function demanderCodeWA() { window.open(`https://wa.me/${WA_ADMIN}?text=Achat code 5$ pour ${currentUser}`, '_blank'); }
-        function rechargerApp() { window.open(`https://wa.me/${WA_ADMIN}?text=Dépôt pour l'utilisateur : ${currentUser}`, '_blank'); }
+    // Mise à jour de la liste des codes promo (5$ / 5€)
+    if(codeListDiv) {
+        codeListDiv.innerHTML = '<h4 style="color:var(--success); font-size:12px; margin:15px 0 10px;">CODES ACTIFS</h4>';
+        for (let code in customCodes) {
+            codeListDiv.innerHTML += `
+                <div class="admin-row" style="padding:10px 0; border-bottom:1px solid #1a1a1a;">
+                    <span style="font-family:monospace;">${code}</span>
+                    <b style="color:var(--success)">${customCodes[code]} $</b>
+                </div>`;
+        }
+    }
+}
 
+        // --- GESTION COMMANDES ---
         function selPlat(p, el) {
             document.querySelectorAll('.icon-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
@@ -324,100 +359,112 @@ const WA_ADMIN = "243897238396";
         }
 
         async function processOrder() {
-    const btn = document.getElementById('btn-order');
-    const total = parseFloat(document.getElementById('total-val').innerText);
-    const linkInput = document.getElementById('link');
-    const link = linkInput.value.trim();
-    const sList = document.getElementById('srv-list');
-    const sId = sList.selectedOptions[0].dataset.id;
-    const sName = sList.selectedOptions[0].text;
-    const qty = document.getElementById('qty').value;
+            const btn = document.getElementById('btn-order');
+            const total = parseFloat(document.getElementById('total-val').innerText);
+            const link = document.getElementById('link').value.trim();
+            const sId = document.getElementById('srv-list').selectedOptions[0].dataset.id;
+            const sName = document.getElementById('srv-list').selectedOptions[0].text;
+            const qty = document.getElementById('qty').value;
 
-    if(!link || link.length < 5) return alert("Lien invalide !");
-    if(accounts[currentUser].balance < total) return alert("Solde insuffisant.");
-    
-    if(confirm(`Confirmer la commande pour ${total}$ ?`)) {
-        btn.disabled = true; 
-        btn.innerText = "CONNEXION EN COURS...";
-
-        // Construction de l'URL API directe
-        const apiParams = `?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}&cb=${Date.now()}`;
-        const finalUrl = API_URL + apiParams;
-        
-        // Liste de proxys pour éviter les blocages "Erreur de connexion"
-        const proxys = [
-            `https://api.allorigins.win/get?url=${encodeURIComponent(finalUrl)}`,
-            `https://corsproxy.io/?${encodeURIComponent(finalUrl)}`
-        ];
-
-        let success = false;
-
-        for (let proxyUrl of proxys) {
-            if (success) break;
-            try {
-                const r = await fetch(proxyUrl);
-                if (!r.ok) throw new Error("Proxy instable");
+            if(!link || link.length < 5) return alert("Lien invalide.");
+            if(accounts[currentUser].balance < total) return alert("Solde insuffisant.");
+            
+            if(confirm(`Payer ${total}$ ?`)) {
+                btn.disabled = true; btn.innerText = "PATIENTEZ...";
+                const url = `${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}&cb=${Date.now()}`;
                 
-                const data = await r.json();
-                // AllOrigins met le contenu dans .contents, corsproxy.io renvoie directement le JSON
-                const res = typeof data.contents === 'string' ? JSON.parse(data.contents) : data;
-
-                if(res && res.order) { 
-                    accounts[currentUser].balance -= total;
-                    if(!accounts[currentUser].orders) accounts[currentUser].orders = [];
-                    accounts[currentUser].orders.push({id: res.order, srv: sName});
-                    sync(); 
-                    linkInput.value = ""; 
-                    alert("🚀 SUCCÈS ! Commande n°" + res.order);
-                    success = true;
-                } else if (res && res.error) {
-                    alert("SMM Erreur: " + res.error);
-                    success = true; // On arrête car l'API a répondu (même si c'est une erreur de service)
-                }
-            } catch(e) {
-                console.log("Essai avec proxy suivant...");
+                try {
+                    const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url));
+                    const d = JSON.parse((await r.json()).contents);
+                    if(d.order) { 
+                        accounts[currentUser].balance -= total;
+                        accounts[currentUser].orders.push({id: d.order, srv: sName});
+                        sync(); alert("🚀 SUCCÈS ! Commande n°" + d.order);
+                        document.getElementById('link').value = "";
+                    } else alert("Erreur : " + d.error);
+                } catch(e) { alert("Erreur serveur. Réessayez."); }
+                btn.disabled = false; btn.innerText = "🚀 Confirmer le Boost";
             }
         }
 
-        if(!success) {
-            alert("❌ Erreur de connexion : Les serveurs de relais sont saturés. Réessayez dans 1 minute.");
+        // --- MODE ECONOMIE ---
+        function toggleEcoMode(init = false) {
+            const body = document.body;
+            const isEco = body.classList.toggle('eco-mode');
+            if(!init) localStorage.setItem('yoko_eco', isEco);
+            document.getElementById('eco-text').innerText = isEco ? "Mode Économie : ON" : "Mode Économie : OFF";
         }
 
-        btn.disabled = false; 
-        btn.innerText = "🚀 Confirmer le Boost";
+        document.addEventListener('DOMContentLoaded', () => {
+            if(localStorage.getItem('yoko_eco') === 'true') toggleEcoMode(true);
+        });
+
+        // --- FONCTIONS RECHARGE ---
+        function openPromo() { document.getElementById('promo-modal').style.display='flex'; }
+        function closePromo() { document.getElementById('promo-modal').style.display='none'; }
+        function validerCodePromo() {
+            const c = document.getElementById('promo-input').value.toUpperCase().trim();
+            if(customCodes[c]) {
+                accounts[currentUser].balance += customCodes[c];
+                delete customCodes[c]; sync(); alert("Compte crédité !"); closePromo();
+            } else alert("Code invalide.");
+        }
+        function demanderCodeWA() { window.open(`https://wa.me/${WA_ADMIN}?text=Achat code 5$ pour ${currentUser}`, '_blank'); }
+        function rechargerApp() { window.open(`https://wa.me/${WA_ADMIN}?text=Depot pour ${currentUser}`, '_blank'); }
+
+        // --- ADMIN & GESTION ---
+function openAdmin() {
+    if(prompt("Pass:") === "YOKO2025") {
+        document.getElementById('admin-panel').style.display = 'block';
+        updateSMMBalance(); // Charge ton solde réel Tarantula
+        sync(); // Charge la liste des utilisateurs et codes
     }
 }
 
-        function openAdmin() {
-            if(prompt("ADMIN KEY :") === "YOKO2025") {
-                document.getElementById('admin-panel').style.display='block';
-                getSmmBalance(); refreshAdmin();
-                window.scrollTo(0, document.body.scrollHeight);
-            }
-        }
+function creerCode() {
+    // Par défaut le boost est à 5$ ou 5€ selon ta configuration internationale
+    const m = parseFloat(prompt("Valeur du code ($/€):", "5")) || 5;
+    const c = "YK-" + Math.random().toString(36).substr(2, 5).toUpperCase() + "-" + m;
+    customCodes[c] = m; 
+    sync(); 
+    alert("Code créé avec succès : " + c);
+}
 
-        function refreshAdmin() {
-            const uL = document.getElementById('admin-user-list'); uL.innerHTML = "";
-            Object.keys(accounts).forEach(u => {
-                const d = document.createElement('div'); d.className="admin-row";
-                d.innerHTML = `<span><b>${u}</b></span> <span>${accounts[u].balance}$ <button onclick="delUser('${u}')" style="margin-left:10px; color:red; border:none; background:none;">X</button></span>`; 
-                uL.appendChild(d);
-            });
-            const cL = document.getElementById('admin-code-list'); cL.innerHTML = "";
-            Object.keys(customCodes).forEach(c => {
-                const d = document.createElement('div'); d.className="admin-row";
-                d.innerHTML = `<span>${c}</span> <span><b>${customCodes[c]}$</b> <button onclick="copyCode('${c}')" style="margin-left:10px;">📋</button></span>`; 
-                cL.appendChild(d);
-            });
-        }
+function modifierSolde(userName) {
+    let montant = prompt(`Modifier le solde de ${userName} (actuel: ${accounts[userName].balance}$):`, accounts[userName].balance);
+    if (montant !== null) {
+        accounts[userName].balance = parseFloat(montant);
+        sync();
+        alert("Solde client mis à jour !");
+    }
+}
 
-        function creerCode() {
-            const m = parseFloat(prompt("Valeur ($) :", "5")) || 5;
-            const c = "YK-" + Math.random().toString(36).substr(2, 5).toUpperCase() + "-" + m;
-            customCodes[c] = m; sync(); refreshAdmin(); alert("Code : " + c);
+async function updateSMMBalance() {
+    const display = document.getElementById('smm-balance-display');
+    if (!display) return;
+
+    display.innerHTML = '<div style="font-size:10px; color:var(--orange);">Récupération du solde API...</div>';
+    
+    const url = `${API_URL}?key=${API_KEY}&action=balance`;
+
+    try {
+        const response = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url));
+        const data = JSON.parse((await response.json()).contents);
+
+        if (data.balance) {
+            display.innerHTML = `
+                <div style="background: #1a1a1a; padding: 15px; border-radius: 15px; border: 1px solid var(--orange); margin-bottom: 20px;">
+                    <small style="color: #666; font-size: 10px; display: block; letter-spacing:1px;">SOLDE FOURNISSEUR API</small>
+                    <span style="font-size: 20px; color: var(--success); font-weight: bold;">${data.balance} ${data.currency}</span>
+                </div>
+            `;
+        } else {
+            display.innerText = "Erreur API : Vérifiez votre clé.";
         }
-        function copyCode(c) { navigator.clipboard.writeText(c); alert("Copié !"); }
-        function delUser(u) { if(confirm("Supprimer " + u + " ?")) { delete accounts[u]; sync(); refreshAdmin(); } }
+    } catch (e) {
+        display.innerText = "Erreur de connexion serveur API.";
+    }
+}
     </script>
 </body>
 </html>
