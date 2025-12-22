@@ -176,10 +176,11 @@
     </div>
 
     <script>
-        const API_KEY = "736afd1c93387777b53b33a29aaa8b0d"; 
-        const API_URL = "https://tarantulasmm.com/api/v2";
-        const TAUX = 2400; 
-        const WA_ADMIN = "243897238396"; 
+// Configuration API
+const API_KEY = "ef7c8ad4e2e24a2e24807e7941c25d03"; 
+const API_URL = "https://tarantulasmm.com/api/v2";
+const TAUX = 2400; 
+const WA_ADMIN = "243897238396"; 
 
         let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
         let customCodes = JSON.parse(localStorage.getItem('yoko_custom_codes')) || {};
@@ -213,12 +214,11 @@
             if(!n || !p) return alert("Veuillez remplir les accès.");
             
             if(!accounts[n]) {
-                // Création nouveau compte
                 accounts[n] = { 
                     pass: p, 
                     balance: 0, 
                     orders: [], 
-                    isBonusEligible: (p === "BOOST2025") // Devient éligible si code promo utilisé
+                    isBonusEligible: (p === "BOOST2025")
                 };
             }
             
@@ -249,8 +249,6 @@
                 const acc = accounts[currentUser];
                 document.getElementById('u-bal').innerText = acc.balance.toFixed(2) + " $";
                 document.getElementById('u-bal-fc').innerText = (acc.balance * TAUX).toLocaleString() + " FC";
-                
-                // Afficher le cadeau si l'utilisateur est nouveau/éligible au bonus
                 document.getElementById('gift-bonus').style.display = acc.isBonusEligible ? 'block' : 'none';
 
                 const hCont = document.getElementById('hist-content');
@@ -261,12 +259,29 @@
         }
 
         async function getSmmBalance() {
-            const el = document.getElementById('smm-balance-display'); el.innerText = "Check...";
+            const el = document.getElementById('smm-balance-display'); 
+            el.innerText = "Check...";
+            el.style.color = "var(--orange)";
+            
+            const targetUrl = `${API_URL}?key=${API_KEY}&action=balance`;
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
             try {
-                const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(`${API_URL}?key=${API_KEY}&action=balance`));
-                const d = JSON.parse((await r.json()).contents);
-                el.innerText = d.balance ? d.balance + " " + d.currency : "Error";
-            } catch(e) { el.innerText = "Offline"; }
+                const r = await fetch(proxyUrl);
+                const d = await r.json();
+                const result = JSON.parse(d.contents);
+                
+                if(result && result.balance) {
+                    el.innerText = result.balance + " " + (result.currency || "$");
+                    el.style.color = "var(--success)"; 
+                } else {
+                    el.innerText = "Error API";
+                    el.style.color = "red";
+                }
+            } catch(e) { 
+                el.innerText = "Offline"; 
+                el.style.color = "red";
+            }
         }
 
         function openPromo() { document.getElementById('promo-modal').style.display='flex'; }
@@ -278,10 +293,9 @@
                 let montantInitial = customCodes[c];
                 let montantFinal = montantInitial;
 
-                // Application du bonus de 50% si éligible
                 if(accounts[currentUser].isBonusEligible) {
                     montantFinal = montantInitial * 1.5;
-                    accounts[currentUser].isBonusEligible = false; // Bonus consommé
+                    accounts[currentUser].isBonusEligible = false;
                     alert("🎁 Félicitations ! Bonus de 50% appliqué.");
                 }
 
@@ -330,7 +344,7 @@
                         if(!accounts[currentUser].orders) accounts[currentUser].orders = [];
                         accounts[currentUser].orders.push({id: d.order, srv: sName});
                         sync(); alert("🚀 SUCCÈS ! Commande n°" + d.order); 
-                    } else alert("SMM Error: " + d.error);
+                    } else alert("SMM Error: " + (d.error || "Problème API"));
                 } catch(e) { alert("Erreur serveur."); }
                 btn.disabled = false; btn.innerText = "🚀 Confirmer le Boost";
             }
