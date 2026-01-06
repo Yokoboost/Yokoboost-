@@ -144,7 +144,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
             <input type="text" id="user-name" placeholder="Nom d'utilisateur">
             <input type="text" id="user-pass" placeholder="Mot de passe ou Code Promo">
             <button class="btn-main" onclick="connexion()">Démarrer l'expérience</button>
-            <p style="font-size: 10px; color: #444; margin-top: 15px; text-align: center;">Rechargez pour 5$ ou 5€ via WhatsApp.</p>
+            <p style="font-size: 10px; color: #444; margin-top: 15px; text-align: center;">Rechargez pour 5$ a 1000$ via WhatsApp.</p>
         </div>
     </div>
 
@@ -155,7 +155,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
             <input type="text" id="promo-input" placeholder="YK-XXXXX-XX" style="text-align:center;">
             <button class="btn-main" onclick="validerCodePromo()" style="margin-bottom:15px;">Activer</button>
             <button class="btn-action" onclick="demanderCodeWA()" style="width:100%; border-color:#25D366; color:#25D366;">
-                <i class="fa-brands fa-whatsapp"></i> Acheter un code (5$ / 5€)
+                <i class="fa-brands fa-whatsapp"></i> Acheter un code (5$ / 1000$)
             </button>
             <p onclick="closePromo()" style="margin-top:25px; cursor:pointer;">Fermer</p>
         </div>
@@ -235,236 +235,208 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
         <div style="text-align:center; padding:40px; font-size:10px; color:#222; letter-spacing:4px;" onclick="openAdmin()">YOKOBOOST CORE</div>
     </div>
 
-    <script>
-        const API_KEY = "ef7c8ad4e2e24a2e24807e7941c25d03"; 
-        const API_URL = "https://tarantulasmm.com/api/v2";
-        const TAUX = 2400; 
-        const WA_ADMIN = "243897238396"; 
+<script>
+    const API_KEY = "ef7c8ad4e2e24a2e24807e7941c25d03"; 
+    const API_URL = "https://tarantulasmm.com/api/v2";
+    const TAUX = 2400; 
+    const WA_ADMIN = "243897238396"; 
 
-        let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
-        let customCodes = JSON.parse(localStorage.getItem('yoko_custom_codes')) || {};
-        let currentUser = null;
+    let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
+    let customCodes = JSON.parse(localStorage.getItem('yoko_custom_codes')) || {};
+    let currentUser = null;
 
-        const catalog = {
-            "TikTok": [
-                {id:"1264", n:"Abonnés pour 1000", p:0.005}, {id:"15", n:"Likes pour 1000", p:0.001}, {id:"1735", n:"Vues pour 1000", p:0.001},
-                {id:"2044", n:"Sauvegardes pour 1000", p:0.002}, {id:"2073", n:"Commentaires pour 1000", p:0.008},
-                {id:"1282", n:"Live Likes pour 1000", p:0.004}, {id:"888", n:"Live 15min", p:0.006}, {id:"2489", n:"Downloads pour 1000", p:0.005},
-{id:"1754", n:"Shares pour 1000", p:0.001}
-            ],
-            "YouTube": [
-                {id:"111", n:"Vues pour 1000", p:0.005}, {id:"1786", n:"Likes pour 1000", p:0.005}, {id:"206", n:"Commentaires pour 1000", p:0.015},
-                {id:"167", n:"Shorts Likes pour 1000", p:0.008}, {id:"714", n:"Abonnés pour 1000", p:0.025}, {id:"1808", n:"Partages pour 1000", p:0.007}, {id:"2394", n:"Live 15min", p:0.012},
-{id:"1405", n:"WhatchTime views 3min", p:0.008}
-            ],
-            "Instagram": [
-                {id:"1177", n:"Abonnés pour 1000", p:0.006}, {id:"1879", n:"Likes pour 1000", p:0.003}, {id:"1674", n:"Vues pour 1000", p:0.002},
-                {id:"1682", n:"Commentaires pour 1000", p:0.010}, {id:"1314", n:"Partages pour 1000", p:0.004}, {id:"2301", n:"Sauvegardes pour 1000", p:0.003},
-                {id:"1354", n:"Reposts pour 1000", p:0.005}, {id:"4026", n:"Vues + Likes pour 1000", p:0.008}, {id:"3759", n:"Membres Canal pour 1000", p:0.012}
-            ],
-            "Facebook": [
-                {id:"3843", n:"Réaction Like pour 1000", p:0.004}, {id:"3844", n:"Réaction J'adore pour 1000❤️", p:0.004}, {id:"3845", n:"Réaction Etonnée pour 1000😳", p:0.004},
-                {id:"3846", n:"Réaction Rire pour 1000😂", p:0.004}, {id:"3867", n:"Vues Vidéo pour 1000", p:0.003}, {id:"4001", n:"Abonnés Profil pour 1000", p:0.008},
-                {id:"52", n:"Likes Page pour 1000", p:0.007}, {id:"3935", n:"Likes+Followers pour 1000", p:0.012}, {id:"3860", n:"Membres Groupe pour 1000", p:0.010}
-            ]
-        };
+    const catalog = {
+        "TikTok": [
+            {id:"1264", n:"Abonnés pour 1000", p:0.005}, {id:"15", n:"Likes pour 1000", p:0.001}, {id:"1735", n:"Vues pour 1000", p:0.001},
+            {id:"2044", n:"Sauvegardes pour 1000", p:0.002}, {id:"2073", n:"Commentaires pour 1000", p:0.008},
+            {id:"1282", n:"Live Likes pour 1000", p:0.004}, {id:"888", n:"Live 15min", p:0.006}, {id:"2489", n:"Downloads pour 1000", p:0.005},
+            {id:"1754", n:"Shares pour 1000", p:0.001}
+        ],
+        "YouTube": [
+            {id:"111", n:"Vues pour 1000", p:0.005}, {id:"1786", n:"Likes pour 1000", p:0.005}, {id:"206", n:"Commentaires pour 1000", p:0.015},
+            {id:"167", n:"Shorts Likes pour 1000", p:0.008}, {id:"714", n:"Abonnés pour 1000", p:0.025}, {id:"1808", n:"Partages pour 1000", p:0.007}, {id:"2394", n:"Live 15min", p:0.012},
+            {id:"1405", n:"WhatchTime views 3min", p:0.008}
+        ],
+        "Instagram": [
+            {id:"1177", n:"Abonnés pour 1000", p:0.006}, {id:"1879", n:"Likes pour 1000", p:0.003}, {id:"1674", n:"Vues pour 1000", p:0.002},
+            {id:"1682", n:"Commentaires pour 1000", p:0.010}, {id:"1314", n:"Partages pour 1000", p:0.004}, {id:"2301", n:"Sauvegardes pour 1000", p:0.003},
+            {id:"1354", n:"Reposts pour 1000", p:0.005}, {id:"4026", n:"Vues + Likes pour 1000", p:0.008}, {id:"3759", n:"Membres Canal pour 1000", p:0.012}
+        ],
+        "Facebook": [
+            {id:"3843", n:"Réaction Like pour 1000", p:0.004}, {id:"3844", n:"Réaction J'adore pour 1000❤️", p:0.004}, {id:"3845", n:"Réaction Etonnée pour 1000😳", p:0.004},
+            {id:"3846", n:"Réaction Rire pour 1000😂", p:0.004}, {id:"3867", n:"Vues Vidéo pour 1000", p:0.003}, {id:"4001", n:"Abonnés Profil pour 1000", p:0.008},
+            {id:"52", n:"Likes Page pour 1000", p:0.007}, {id:"3935", n:"Likes+Followers pour 1000", p:0.012}, {id:"3860", n:"Membres Groupe pour 1000", p:0.010}
+        ]
+    };
 
-        // --- GESTION CONNEXION ---
-function connexion() {
-    const n = document.getElementById('user-name').value.toLowerCase().trim();
-    const p = document.getElementById('user-pass').value.trim();
-    
-    if(!n || !p) return alert("Champs vides.");
-    
-    // Création ou récupération du compte
-    if(!accounts[n]) accounts[n] = { pass: p, balance: 0, orders: [], isBonusEligible: (p === "BOOST2025") };
-    if(accounts[n].pass !== p && p !== "BOOST2025") return alert("Erreur d'accès.");
-    
-    currentUser = n;
-
-    // --- MISE À JOUR DE L'INTERFACE ---
-    // Affiche le nom d'utilisateur (avec majuscule)
-    document.getElementById('display-username').innerText = n.charAt(0).toUpperCase() + n.slice(1);
-    
-    // Affiche la barre de navigation si elle existe
-    const nav = document.querySelector('.bottom-nav');
-    if(nav) nav.style.display = 'flex';
-
-    // Basculement des écrans
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
-    
-    sync();
-    selPlat('TikTok', document.querySelector('.icon-item'));
-}
-
-function sync() {
-    localStorage.setItem('yoko_accounts', JSON.stringify(accounts));
-    localStorage.setItem('yoko_custom_codes', JSON.stringify(customCodes));
-    
-    if(currentUser) {
-        const acc = accounts[currentUser];
-        // Mise à jour de l'interface utilisateur
-        document.getElementById('u-bal').innerText = acc.balance.toFixed(2) + " $";
-        document.getElementById('u-bal-fc').innerText = (acc.balance * TAUX).toLocaleString() + " FC";
-        
-        const hCont = document.getElementById('hist-content');
-        hCont.innerHTML = acc.orders.slice(-3).reverse().map(o => 
-            `<div class="hist-item"><span>${o.srv}</span> <b>${o.id}</b></div>`
-        ).join('') || "Aucune commande.";
+        function connexion() {
+        const n = document.getElementById('user-name').value.toLowerCase().trim();
+        const p = document.getElementById('user-pass').value.trim();
+        if(!n || !p) return alert("Champs vides.");
+        if(!accounts[n]) accounts[n] = { pass: p, balance: 0, orders: [], isBonusEligible: (p === "BOOST2025") };
+        if(accounts[n].pass !== p && p !== "BOOST2025") return alert("Erreur d'accès.");
+        currentUser = n;
+        document.getElementById('display-username').innerText = n.charAt(0).toUpperCase() + n.slice(1);
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+        sync();
+        selPlat('TikTok', document.querySelector('.icon-item'));
     }
 
-    // --- AJOUT POUR LE GÉRANT (Ce qui te manquait) ---
-    const userListDiv = document.getElementById('admin-user-list');
-    const codeListDiv = document.getElementById('admin-code-list');
-
-    // Mise à jour de la liste des clients pour le gérant
-    if(userListDiv) {
-        userListDiv.innerHTML = '<h4 style="color:var(--orange); font-size:12px; margin-bottom:10px;">CLIENTS & SOLDES</h4>';
-        for (let name in accounts) {
-            userListDiv.innerHTML += `
-                <div class="admin-row" style="padding:10px 0; border-bottom:1px solid #1a1a1a;">
-                    <span>${name}</span>
-                    <b onclick="modifierSolde('${name}')" style="color:var(--orange); cursor:pointer;">${accounts[name].balance.toFixed(2)} $</b>
-                </div>`;
-        }
-    }
-
-    // Mise à jour de la liste des codes promo (5$ / 5€)
-    if(codeListDiv) {
-        codeListDiv.innerHTML = '<h4 style="color:var(--success); font-size:12px; margin:15px 0 10px;">CODES ACTIFS</h4>';
-        for (let code in customCodes) {
-            codeListDiv.innerHTML += `
-                <div class="admin-row" style="padding:10px 0; border-bottom:1px solid #1a1a1a;">
-                    <span style="font-family:monospace;">${code}</span>
-                    <b style="color:var(--success)">${customCodes[code]} $</b>
-                </div>`;
-        }
-    }
-}
-
-        // --- GESTION COMMANDES ---
-        function selPlat(p, el) {
-            document.querySelectorAll('.icon-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            const s = document.getElementById('srv-list'); s.innerHTML = "";
-            catalog[p].forEach(i => { let o = new Option(i.n, i.p); o.dataset.id = i.id; s.add(o); });
-            calc();
-        }
-
-        function calc() {
-            const q = document.getElementById('qty').value; const p = document.getElementById('srv-list').value;
-            document.getElementById('total-val').innerText = (q * p).toFixed(2) + " $";
-            document.getElementById('total-fc').innerText = (q * p * TAUX).toLocaleString() + " FC";
-        }
-
-        async function processOrder() {
-            const btn = document.getElementById('btn-order');
-            const total = parseFloat(document.getElementById('total-val').innerText);
-            const link = document.getElementById('link').value.trim();
-            const sId = document.getElementById('srv-list').selectedOptions[0].dataset.id;
-            const sName = document.getElementById('srv-list').selectedOptions[0].text;
-            const qty = document.getElementById('qty').value;
-
-            if(!link || link.length < 5) return alert("Lien invalide.");
-            if(accounts[currentUser].balance < total) return alert("Solde insuffisant.");
-            
-            if(confirm(`Payer ${total}$ ?`)) {
-                btn.disabled = true; btn.innerText = "PATIENTEZ...";
-                const url = `${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}&cb=${Date.now()}`;
-                
-                try {
-                    const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url));
-                    const d = JSON.parse((await r.json()).contents);
-                    if(d.order) { 
-                        accounts[currentUser].balance -= total;
-                        accounts[currentUser].orders.push({id: d.order, srv: sName});
-                        sync(); alert("🚀 SUCCÈS ! Commande n°" + d.order);
-                        document.getElementById('link').value = "";
-                    } else alert("Erreur : " + d.error);
-                } catch(e) { alert("Erreur serveur. Réessayez."); }
-                btn.disabled = false; btn.innerText = "🚀 Confirmer le Boost";
+    // AJOUTEZ LA DÉCONNEXION ICI, JUSTE APRÈS :
+    function deconnexion() {
+        if(confirm("Voulez-vous vous déconnecter ?")) {
+            currentUser = null;
+            document.getElementById('app-content').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('user-name').value = "";
+            document.getElementById('user-pass').value = "";
+            if(document.getElementById('admin-panel')) {
+                document.getElementById('admin-panel').style.display = 'none';
             }
         }
-
-        // --- MODE ECONOMIE ---
-        function toggleEcoMode(init = false) {
-            const body = document.body;
-            const isEco = body.classList.toggle('eco-mode');
-            if(!init) localStorage.setItem('yoko_eco', isEco);
-            document.getElementById('eco-text').innerText = isEco ? "Mode Économie : ON" : "Mode Économie : OFF";
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if(localStorage.getItem('yoko_eco') === 'true') toggleEcoMode(true);
-        });
-
-        // --- FONCTIONS RECHARGE ---
-        function openPromo() { document.getElementById('promo-modal').style.display='flex'; }
-        function closePromo() { document.getElementById('promo-modal').style.display='none'; }
-        function validerCodePromo() {
-            const c = document.getElementById('promo-input').value.toUpperCase().trim();
-            if(customCodes[c]) {
-                accounts[currentUser].balance += customCodes[c];
-                delete customCodes[c]; sync(); alert("Compte crédité !"); closePromo();
-            } else alert("Code invalide.");
-        }
-        function demanderCodeWA() { window.open(`https://wa.me/${WA_ADMIN}?text=Achat code 5$ pour ${currentUser}`, '_blank'); }
-        function rechargerApp() { window.open(`https://wa.me/${WA_ADMIN}?text=Depot pour ${currentUser}`, '_blank'); }
-
-        // --- ADMIN & GESTION ---
-function openAdmin() {
-    if(prompt("Pass:") === "YOKO2025") {
-        document.getElementById('admin-panel').style.display = 'block';
-        updateSMMBalance(); // Charge ton solde réel Tarantula
-        sync(); // Charge la liste des utilisateurs et codes
     }
-}
 
-function creerCode() {
-    // Par défaut le boost est à 5$ ou 5€ selon ta configuration internationale
-    const m = parseFloat(prompt("Valeur du code ($/€):", "5")) || 5;
-    const c = "YK-" + Math.random().toString(36).substr(2, 5).toUpperCase() + "-" + m;
-    customCodes[c] = m; 
-    sync(); 
-    alert("Code créé avec succès : " + c);
-}
-
-function modifierSolde(userName) {
-    let montant = prompt(`Modifier le solde de ${userName} (actuel: ${accounts[userName].balance}$):`, accounts[userName].balance);
-    if (montant !== null) {
-        accounts[userName].balance = parseFloat(montant);
-        sync();
-        alert("Solde client mis à jour !");
+    function sync() {
+        localStorage.setItem('yoko_accounts', JSON.stringify(accounts));
+        localStorage.setItem('yoko_custom_codes', JSON.stringify(customCodes));
+        if(currentUser) {
+            const acc = accounts[currentUser];
+            document.getElementById('u-bal').innerText = acc.balance.toFixed(2) + " $";
+            document.getElementById('u-bal-fc').innerText = (acc.balance * TAUX).toLocaleString() + " FC";
+            const hCont = document.getElementById('hist-content');
+            hCont.innerHTML = acc.orders.slice(-3).reverse().map(o => 
+                `<div class="hist-item"><span>${o.srv}</span> <b>${o.id}</b></div>`
+            ).join('') || "Aucune commande.";
+        }
+        const userListDiv = document.getElementById('admin-user-list');
+        const codeListDiv = document.getElementById('admin-code-list');
+        if(userListDiv) {
+            userListDiv.innerHTML = '<h4 style="color:var(--orange); font-size:12px; margin-bottom:10px;">CLIENTS & SOLDES</h4>';
+            for (let name in accounts) {
+                userListDiv.innerHTML += `<div class="admin-row"><span>${name}</span><b onclick="modifierSolde('${name}')" style="color:var(--orange); cursor:pointer;">${accounts[name].balance.toFixed(2)} $</b></div>`;
+            }
+        }
+        if(codeListDiv) {
+            codeListDiv.innerHTML = '<h4 style="color:var(--success); font-size:12px; margin:15px 0 10px;">CODES ACTIFS</h4>';
+            for (let code in customCodes) {
+                codeListDiv.innerHTML += `<div class="admin-row"><span style="font-family:monospace;">${code}</span><b style="color:var(--success)">${customCodes[code]} $</b></div>`;
+            }
+        }
     }
-}
 
-async function updateSMMBalance() {
+    function selPlat(p, el) {
+        document.querySelectorAll('.icon-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        const s = document.getElementById('srv-list'); s.innerHTML = "";
+        catalog[p].forEach(i => { let o = new Option(i.n, i.p); o.dataset.id = i.id; s.add(o); });
+        calc();
+    }
+
+    function calc() {
+        const q = document.getElementById('qty').value; const p = document.getElementById('srv-list').value;
+        document.getElementById('total-val').innerText = (q * p).toFixed(2) + " $";
+        document.getElementById('total-fc').innerText = (q * p * TAUX).toLocaleString() + " FC";
+    }
+
+    async function processOrder() {
+        const btn = document.getElementById('btn-order');
+        const total = parseFloat(document.getElementById('total-val').innerText);
+        const link = document.getElementById('link').value.trim();
+        const sId = document.getElementById('srv-list').selectedOptions[0].dataset.id;
+        const sName = document.getElementById('srv-list').selectedOptions[0].text;
+        const qty = document.getElementById('qty').value;
+        if(!link || link.length < 5) return alert("Lien invalide.");
+        if(accounts[currentUser].balance < total) return alert("Solde insuffisant.");
+        if(confirm(`Payer ${total}$ ?`)) {
+            btn.disabled = true; btn.innerText = "PATIENTEZ...";
+            const url = `${API_URL}?key=${API_KEY}&action=add&service=${sId}&link=${encodeURIComponent(link)}&quantity=${qty}`;
+            try {
+                const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url));
+                const d = JSON.parse((await r.json()).contents);
+                if(d.order) { 
+                    accounts[currentUser].balance -= total;
+                    accounts[currentUser].orders.push({id: d.order, srv: sName});
+                    sync(); alert("🚀 SUCCÈS ! Commande n°" + d.order);
+                } else alert("Erreur : " + d.error);
+            } catch(e) { alert("Erreur serveur."); }
+            btn.disabled = false; btn.innerText = "🚀 Confirmer le Boost";
+        }
+    }
+
+    function toggleEcoMode(init = false) {
+        const body = document.body;
+        const isEco = body.classList.toggle('eco-mode');
+        if(!init) localStorage.setItem('yoko_eco', isEco);
+        document.getElementById('eco-text').innerText = isEco ? "Mode Économie : ON" : "Mode Économie : OFF";
+    }
+
+    function openPromo() { document.getElementById('promo-modal').style.display='flex'; }
+    function closePromo() { document.getElementById('promo-modal').style.display='none'; }
+    function validerCodePromo() {
+        const c = document.getElementById('promo-input').value.toUpperCase().trim();
+        if(customCodes[c]) {
+            accounts[currentUser].balance += customCodes[c];
+            delete customCodes[c]; sync(); alert("Compte crédité !"); closePromo();
+        } else alert("Code invalide.");
+    }
+
+    function openAdmin() {
+        if(prompt("Pass:") === "YOKO2025") {
+            document.getElementById('admin-panel').style.display = 'block';
+            updateSMMBalance();
+            sync();
+        }
+    }
+
+    async function updateSMMBalance() {
     const display = document.getElementById('smm-balance-display');
     if (!display) return;
-
-    display.innerHTML = '<div style="font-size:10px; color:var(--orange);">Récupération du solde API...</div>';
+    display.innerHTML = '<div style="font-size:10px; color:var(--orange);">Tentative de connexion...</div>';
     
-    const url = `${API_URL}?key=${API_KEY}&action=balance`;
+    // On change le proxy pour un plus stable (CodeTabs)
+    const targetUrl = `${API_URL}?key=${API_KEY}&action=balance&cb=${Date.now()}`;
+    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`;
 
     try {
-        const response = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url));
-        const data = JSON.parse((await response.json()).contents);
+        const response = await fetch(proxyUrl);
+        
+        if (!response.ok) throw new Error('Proxy indisponible');
+        
+        const data = await response.json();
 
         if (data.balance) {
             display.innerHTML = `
-                <div style="background: #1a1a1a; padding: 15px; border-radius: 15px; border: 1px solid var(--orange); margin-bottom: 20px;">
-                    <small style="color: #666; font-size: 10px; display: block; letter-spacing:1px;">SOLDE FOURNISSEUR API</small>
-                    <span style="font-size: 20px; color: var(--success); font-weight: bold;">${data.balance} ${data.currency}</span>
-                </div>
-            `;
+                <div style="background:#1a1a1a;padding:15px;border-radius:15px;border:1px solid var(--orange);margin-bottom:20px;">
+                    <small style="color:#666;font-size:10px;display:block;">SOLDE RÉEL API</small>
+                    <span style="font-size:20px;color:var(--success);font-weight:bold;">${data.balance} ${data.currency}</span>
+                </div>`;
+        } else if (data.error) {
+            display.innerHTML = `<div style="color:#e74c3c;font-size:11px;">Erreur SMM: ${data.error}</div>`;
         } else {
-            display.innerText = "Erreur API : Vérifiez votre clé.";
+            display.innerHTML = `<div style="color:#e74c3c;font-size:11px;">Réponse vide du serveur.</div>`;
         }
     } catch (e) {
-        display.innerText = "Erreur de connexion serveur API.";
+        console.error("Détail erreur:", e);
+        display.innerHTML = `<div style="color:#e74c3c;font-size:11px;">Le serveur SMM bloque la connexion externe.</div>`;
     }
 }
-    </script>
+
+    function creerCode() {
+        const m = parseFloat(prompt("Valeur du code ($):", "5")) || 5;
+        const c = "YK-" + Math.random().toString(36).substr(2, 5).toUpperCase() + "-" + m;
+        customCodes[c] = m; sync(); alert("Code créé : " + c);
+    }
+
+    function modifierSolde(userName) {
+        let m = prompt(`Nouveau solde pour ${userName}:`, accounts[userName].balance);
+        if (m !== null) { accounts[userName].balance = parseFloat(m); sync(); }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        if(localStorage.getItem('yoko_eco') === 'true') toggleEcoMode(true);
+    });
+</script>
+
 </body>
 </html>
