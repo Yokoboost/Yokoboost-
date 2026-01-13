@@ -184,8 +184,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
                     <i class="fa-solid fa-gift" style="color: #e74c3c; font-size: 24px;"></i>
                     <span class="gift-tag">+50%</span>
                 </div>
-                <button class="btn-action" onclick="rechargerApp()"><i class="fa-solid fa-plus-circle"></i> Dépôt</button>
-                <button class="btn-action" onclick="openPromo()"><i class="fa-solid fa-qrcode"></i> Code</button>
+                <button class="btn-action" onclick="openPromo()"><i class="fa-solid fa-plus-circle"></i> Dépôt / Code</button>
             </div>
         </div>
         
@@ -229,7 +228,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
             <div id="smm-balance-display">---</div>
             <div id="admin-user-list"></div>
             <div id="admin-code-list"></div>
-            <button class="btn-main" onclick="creerCode()" style="background:var(--success); color:white;">+ Créer Code</button>
+            <button class="btn-main" onclick="creerCodeAdmin()" style="background:var(--success); color:white;">+ Créer Code (Cloud/Local)</button>
         </div>
 
         <div style="text-align:center; padding:40px; font-size:10px; color:#222; letter-spacing:4px;" onclick="openAdmin()">YOKOBOOST CORE</div>
@@ -240,6 +239,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
     const API_URL = "https://tarantulasmm.com/api/v2";
     const TAUX = 2400; 
     const WA_ADMIN = "243897238396"; 
+    const FIREBASE_URL = "https://yokoboost-ba0eb-default-rtdb.europe-west1.firebasedatabase.app/codes"; 
 
     let accounts = JSON.parse(localStorage.getItem('yoko_accounts')) || {};
     let customCodes = JSON.parse(localStorage.getItem('yoko_custom_codes')) || {};
@@ -269,7 +269,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
         ]
     };
 
-        function connexion() {
+    function connexion() {
         const n = document.getElementById('user-name').value.toLowerCase().trim();
         const p = document.getElementById('user-pass').value.trim();
         if(!n || !p) return alert("Champs vides.");
@@ -283,7 +283,6 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
         selPlat('TikTok', document.querySelector('.icon-item'));
     }
 
-    // AJOUTEZ LA DÉCONNEXION ICI, JUSTE APRÈS :
     function deconnexion() {
         if(confirm("Voulez-vous vous déconnecter ?")) {
             currentUser = null;
@@ -291,9 +290,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('user-name').value = "";
             document.getElementById('user-pass').value = "";
-            if(document.getElementById('admin-panel')) {
-                document.getElementById('admin-panel').style.display = 'none';
-            }
+            if(document.getElementById('admin-panel')) document.getElementById('admin-panel').style.display = 'none';
         }
     }
 
@@ -309,6 +306,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
                 `<div class="hist-item"><span>${o.srv}</span> <b>${o.id}</b></div>`
             ).join('') || "Aucune commande.";
         }
+        
         const userListDiv = document.getElementById('admin-user-list');
         const codeListDiv = document.getElementById('admin-code-list');
         if(userListDiv) {
@@ -318,7 +316,7 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
             }
         }
         if(codeListDiv) {
-            codeListDiv.innerHTML = '<h4 style="color:var(--success); font-size:12px; margin:15px 0 10px;">CODES ACTIFS</h4>';
+            codeListDiv.innerHTML = '<h4 style="color:var(--success); font-size:12px; margin:15px 0 10px;">CODES LOCAUX ACTIFS</h4>';
             for (let code in customCodes) {
                 codeListDiv.innerHTML += `<div class="admin-row"><span style="font-family:monospace;">${code}</span><b style="color:var(--success)">${customCodes[code]} $</b></div>`;
             }
@@ -373,70 +371,83 @@ input:focus { border-color: var(--orange); background: #0a0a0a; box-shadow: 0 0 
 
     function openPromo() { document.getElementById('promo-modal').style.display='flex'; }
     function closePromo() { document.getElementById('promo-modal').style.display='none'; }
-    function validerCodePromo() {
-        const c = document.getElementById('promo-input').value.toUpperCase().trim();
-        if(customCodes[c]) {
-            accounts[currentUser].balance += customCodes[c];
-            delete customCodes[c]; sync(); alert("Compte crédité !"); closePromo();
-        } else alert("Code invalide.");
+
+    // --- LOGIQUE FUSIONNÉE POUR LES CODES ---
+    async function validerCodePromo() {
+        const input = document.getElementById('promo-input').value.toUpperCase().trim();
+        if(!input) return alert("Entrez un code !");
+        const btn = document.querySelector("#promo-modal .btn-main");
+        btn.innerText = "Vérification...";
+
+        // 1. Vérification Locale
+        if(customCodes[input]) {
+            accounts[currentUser].balance += parseFloat(customCodes[input]);
+            delete customCodes[input];
+            sync(); alert("Compte crédité ! (Code Local)"); closePromo();
+            return;
+        }
+
+        // 2. Vérification Firebase
+        try {
+            const res = await fetch(`${FIREBASE_URL}/${input}.json`);
+            const data = await res.json();
+            if(data && data.montant) {
+                accounts[currentUser].balance += parseFloat(data.montant);
+                await fetch(`${FIREBASE_URL}/${input}.json`, { method: 'DELETE' });
+                sync(); alert(`Succès ! +${data.montant}$ ajoutés.`); closePromo();
+            } else { alert("Code invalide ou expiré."); }
+        } catch (e) { alert("Erreur serveur Firebase."); }
+        finally { btn.innerText = "Activer"; }
     }
 
     function openAdmin() {
         if(prompt("Pass:") === "YOKO2025") {
             document.getElementById('admin-panel').style.display = 'block';
-            updateSMMBalance();
-            sync();
+            updateSMMBalance(); sync();
         }
     }
 
     async function updateSMMBalance() {
-    const display = document.getElementById('smm-balance-display');
-    if (!display) return;
-    display.innerHTML = '<div style="font-size:10px; color:var(--orange);">Tentative de connexion...</div>';
-    
-    // On change le proxy pour un plus stable (CodeTabs)
-    const targetUrl = `${API_URL}?key=${API_KEY}&action=balance&cb=${Date.now()}`;
-    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`;
-
-    try {
-        const response = await fetch(proxyUrl);
-        
-        if (!response.ok) throw new Error('Proxy indisponible');
-        
-        const data = await response.json();
-
-        if (data.balance) {
-            display.innerHTML = `
-                <div style="background:#1a1a1a;padding:15px;border-radius:15px;border:1px solid var(--orange);margin-bottom:20px;">
-                    <small style="color:#666;font-size:10px;display:block;">SOLDE RÉEL API</small>
-                    <span style="font-size:20px;color:var(--success);font-weight:bold;">${data.balance} ${data.currency}</span>
-                </div>`;
-        } else if (data.error) {
-            display.innerHTML = `<div style="color:#e74c3c;font-size:11px;">Erreur SMM: ${data.error}</div>`;
-        } else {
-            display.innerHTML = `<div style="color:#e74c3c;font-size:11px;">Réponse vide du serveur.</div>`;
-        }
-    } catch (e) {
-        console.error("Détail erreur:", e);
-        display.innerHTML = `<div style="color:#e74c3c;font-size:11px;">Le serveur SMM bloque la connexion externe.</div>`;
+        const display = document.getElementById('smm-balance-display');
+        const targetUrl = `${API_URL}?key=${API_KEY}&action=balance`;
+        const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`;
+        try {
+            const response = await fetch(proxyUrl);
+            const data = await response.json();
+            if (data.balance) {
+                display.innerHTML = `<div style="background:#1a1a1a;padding:15px;border-radius:15px;border:1px solid var(--orange);margin-bottom:20px;"><small>SOLDE API</small><br><span style="color:var(--success)">${data.balance} $</span></div>`;
+            }
+        } catch (e) { display.innerHTML = "Erreur Balance API"; }
     }
-}
 
-    function creerCode() {
-        const m = parseFloat(prompt("Valeur du code ($):", "5")) || 5;
-        const c = "YK-" + Math.random().toString(36).substr(2, 5).toUpperCase() + "-" + m;
-        customCodes[c] = m; sync(); alert("Code créé : " + c);
+    async function creerCodeAdmin() {
+        const val = prompt("Valeur en $ (ex: 10) :");
+        if(!val || isNaN(val)) return;
+        const code = "YK-" + Math.random().toString(36).substr(2, 5).toUpperCase();
+        
+        if(confirm("Envoyer sur le CLOUD (Firebase) ?\n(Annuler pour LOCAL)")) {
+            try {
+                await fetch(`${FIREBASE_URL}/${code}.json`, { method: 'PUT', body: JSON.stringify({ montant: parseFloat(val) }) });
+                alert("CODE CLOUD CRÉÉ : " + code);
+            } catch(e) { alert("Erreur Firebase."); }
+        } else {
+            customCodes[code] = parseFloat(val);
+            sync(); alert("CODE LOCAL CRÉÉ : " + code);
+        }
     }
 
     function modifierSolde(userName) {
         let m = prompt(`Nouveau solde pour ${userName}:`, accounts[userName].balance);
         if (m !== null) { accounts[userName].balance = parseFloat(m); sync(); }
     }
-    
+
+    function demanderCodeWA() {
+        window.open(`https://wa.me/${WA_ADMIN}?text=${encodeURIComponent("Bonjour, je souhaite acheter un code Yokoboost.")}`, '_blank');
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         if(localStorage.getItem('yoko_eco') === 'true') toggleEcoMode(true);
     });
 </script>
-
 </body>
 </html>
